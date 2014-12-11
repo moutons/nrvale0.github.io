@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Git | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[.gitignore to Allow 'Empty' Directory]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/"/>
+    <updated>2014-10-31T19:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve had a couple of situations where I wanted to be able to commit
+an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit
+empty directories so the usual way around this is to include a
+.gitinclude file in the &lsquo;empty&rsquo; directory &ndash; thus no longer empty.</p>
+
+<pre><code class="console">$ mkdir /tmp/foo &amp;&amp; cd /tmp/foo
+$ git init
+Initialized empty Git repository in /tmp/foo/.git/
+$ mkdir bar
+$ git add -A -n
+$ touch bar/.gitinclude
+$ git add -A -n
+add 'bar/.gitinclude'
+</code></pre>
+
+<p>Okay, that seems better.</p>
+
+<p>But in my case I would like &lsquo;bar&rsquo; but not any subdirectories. Let&rsquo;s
+see how that shakes out:</p>
+
+<pre><code class="console">$ mkdir bar/baz
+$ git add -A -n
+add 'bar/.gitinclude'
+</code></pre>
+
+<p>That looks about right &ndash; BUT IT ISN&rsquo;T! Git isn&rsquo;t including &lsquo;baz&rsquo; because
+baz is a directory with no content.</p>
+
+<pre><code class="console">$ touch bar/baz/somefile
+$ git add -A -n
+add 'bar/.gitinclude'
+add 'bar/baz/somefile'
+</code></pre>
+
+<p>Well, crap. Hows about I just add a .gitignore into &lsquo;bar&rsquo;:</p>
+
+<pre><code class="console">$ echo '*' &gt; bar/.gitignore
+$ git add -A -n
+</code></pre>
+
+<p>Uh, now we don&rsquo;t get anything on an &lsquo;add&rsquo;?!?</p>
+
+<p>Here&rsquo;s the right way to get an &lsquo;empty&rsquo; &lsquo;bar&rsquo; with no subdirectories
+whether those subdirectories have content or not:</p>
+
+<pre><code class="console">$ rm bar/.gitinclude
+$ (cat &lt;&lt;HERE
+*/
+!.gitignore
+HERE
+&gt; ) &gt; bar/.gitignore
+$ git add -A -n
+$ add 'bar/.gitignore'
+$ tree
+.
+└── bar
+    └── baz
+        └── somefile
+
+2 directories, 1 file
+</code></pre>
+
+<p>That took way to long to figure out! :\ Here&rsquo;s a repo if you don&rsquo;t believe it worked:</p>
+
+<p><a href="https://github.com/nrvale0/gitinclude_tricks">nrvale0/gitinclude_tricks</a></p>
+]]></content>
+  </entry>
+  
+</feed>

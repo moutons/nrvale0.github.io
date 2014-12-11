@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Andriod | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/andriod/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android KitKat and the Andriod Debug Bridge RSA Key]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/"/>
+    <updated>2014-04-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key</id>
+    <content type="html"><![CDATA[<p>I recently ran into the dreaded <a href="http://www.itworld.com/mobile-wireless/403955/insufficient-storage-available-android-and-how-fix-it-aka-unix-y-man-behind-c">&ldquo;Insufficient storage available&rdquo;</a> problem when trying to reinstall the Google Drive app on my HTC One running <a href="http://www.cyanogenmod.com">Cyanogenmod&rsquo;s</a> spin on KitKat. In the usual <a href="http://www.urbandictionary.com/define.php?term=yak%20shaving">shaving-the-yak</a> fashion the proposed fix for this problem (fixes in previously-linked article did not resolve :() required an upgrade of ADB and the Android SDK. As it turns out KitKit now requires a click-to-accept on your phone when you&rsquo;ve connected to USB debugging with an unrecognized RSA key. This is news to me in a number of ways as I didn&rsquo;t even know there <strong>was</strong> an RSA key built-out as part of ADB debugging but, regardless, my phone was not prompting in any way about any keys. It took about 20 minutes to figure out the following series of steps to get ADB working:</p>
+
+<ol>
+<li>Settings/Developer Options/Revoke USB debugging authorization</li>
+<li>Settings/Storage/USB computer connection(top-right of the screen for me)/Media device(MTP) = checked</li>
+<li>Optionally, Settings/Android debugging = unchecked and then re-checked</li>
+</ol>
+
+
+<p>Now, where were we&hellip;.oh, yes, Google Drive&hellip;</p>
+]]></content>
+  </entry>
+  
+</feed>

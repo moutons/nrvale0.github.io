@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Cyanogenmod | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/cyanogenmod/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android 'Insufficient Storage' Fix]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/"/>
+    <updated>2014-05-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix</id>
+    <content type="html"><![CDATA[<p>So lately I&#8221;ve been having intermittent problems when upgrading Android
+apps on my HTC One running CyanogenMod; the dreaded &ldquo;Insuffucinent storage&rdquo;
+nonsense. I&rsquo;m not going to pretend I&rsquo;ve spent the time to dig into this
+issue to find the root case but I will tell you which of the numerous
+suggested work-arounds have been successful in my case. For instance,
+in the case of the AirBNB app:</p>
+
+<p>(of course the usual #include &lt;disclaimer.h&gt; applies)</p>
+
+<pre><code class="console">$ adb shell
+shell@m7:/ $ su -
+root@m7:/ # cd /data/app-lib
+root@m7:/data/app-lib # find ./ -type f -ipath '*airbnb* -iname '*.so' -exec rm -f {} \;
+</code></pre>
+
+<p>and then make another pass at upgrading the app from Google Play.</p>
+
+<p>If the update still fails then you can go Big Hammer with the following command:</p>
+
+<pre><code class="console">$ adb shell
+shell@m7:/ $ su -
+root@m7:/ # cd /data/app-lib
+root@m7:/data/app-lib # find ./ -name '*airbnb*' -exec rm -rf {} \;
+</code></pre>
+
+<p>Note that this often resets the data for the app such that you may have
+to login to the app again.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android KitKat and the Andriod Debug Bridge RSA Key]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/"/>
+    <updated>2014-04-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key</id>
+    <content type="html"><![CDATA[<p>I recently ran into the dreaded <a href="http://www.itworld.com/mobile-wireless/403955/insufficient-storage-available-android-and-how-fix-it-aka-unix-y-man-behind-c">&ldquo;Insufficient storage available&rdquo;</a> problem when trying to reinstall the Google Drive app on my HTC One running <a href="http://www.cyanogenmod.com">Cyanogenmod&rsquo;s</a> spin on KitKat. In the usual <a href="http://www.urbandictionary.com/define.php?term=yak%20shaving">shaving-the-yak</a> fashion the proposed fix for this problem (fixes in previously-linked article did not resolve :() required an upgrade of ADB and the Android SDK. As it turns out KitKit now requires a click-to-accept on your phone when you&rsquo;ve connected to USB debugging with an unrecognized RSA key. This is news to me in a number of ways as I didn&rsquo;t even know there <strong>was</strong> an RSA key built-out as part of ADB debugging but, regardless, my phone was not prompting in any way about any keys. It took about 20 minutes to figure out the following series of steps to get ADB working:</p>
+
+<ol>
+<li>Settings/Developer Options/Revoke USB debugging authorization</li>
+<li>Settings/Storage/USB computer connection(top-right of the screen for me)/Media device(MTP) = checked</li>
+<li>Optionally, Settings/Android debugging = unchecked and then re-checked</li>
+</ol>
+
+
+<p>Now, where were we&hellip;.oh, yes, Google Drive&hellip;</p>
+]]></content>
+  </entry>
+  
+</feed>

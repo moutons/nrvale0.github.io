@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Youtube | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/youtube/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA['Direct Play W/ Fallback' Solves All Your Roku+Plex+YouTube Problems]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/"/>
+    <updated>2014-04-24T15:04:46-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m a <a href="http://www.techopedia.com/definition/28547/cord-cutting">cord cutter</a>
+and have relied heavily on a combination of <a href="http://roku.com">Roku</a>,
+<a href="http://plex.tv">Plex</a>, and the Plex <a href="http://youtube.com">YouTube</a> channel
+for both entertainment and work-related content for the past couple of
+years. So far it has been an okay experience but I&rsquo;ve had ongoing problems
+with YouTube streams crapping out mid-play. I finally took the time
+to track down a solution and here&rsquo;s what has worked for me:</p>
+
+<ol>
+<li>Go to your Roku&rsquo;s Plex channel.</li>
+<li>Scroll all the way to the bottom of the Plex channel interface and
+select &lsquo;Preferences&rsquo;.</li>
+<li>Scroll down to the &ldquo;Direct Play&rdquo; section and select
+&ldquo;Direct Play w/ Fallback&rdquo;.</li>
+</ol>
+
+
+<p>This seems to have not only solved my problems with YouTube streaming but
+similar problems when streaming local media hosted on a Plex Media Server.</p>
+
+<p>Hope that helps.</p>
+]]></content>
+  </entry>
+  
+</feed>

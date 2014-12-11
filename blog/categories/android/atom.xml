@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Android | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android 'Insufficient Storage' Fix]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/"/>
+    <updated>2014-05-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix</id>
+    <content type="html"><![CDATA[<p>So lately I&#8221;ve been having intermittent problems when upgrading Android
+apps on my HTC One running CyanogenMod; the dreaded &ldquo;Insuffucinent storage&rdquo;
+nonsense. I&rsquo;m not going to pretend I&rsquo;ve spent the time to dig into this
+issue to find the root case but I will tell you which of the numerous
+suggested work-arounds have been successful in my case. For instance,
+in the case of the AirBNB app:</p>
+
+<p>(of course the usual #include &lt;disclaimer.h&gt; applies)</p>
+
+<pre><code class="console">$ adb shell
+shell@m7:/ $ su -
+root@m7:/ # cd /data/app-lib
+root@m7:/data/app-lib # find ./ -type f -ipath '*airbnb* -iname '*.so' -exec rm -f {} \;
+</code></pre>
+
+<p>and then make another pass at upgrading the app from Google Play.</p>
+
+<p>If the update still fails then you can go Big Hammer with the following command:</p>
+
+<pre><code class="console">$ adb shell
+shell@m7:/ $ su -
+root@m7:/ # cd /data/app-lib
+root@m7:/data/app-lib # find ./ -name '*airbnb*' -exec rm -rf {} \;
+</code></pre>
+
+<p>Note that this often resets the data for the app such that you may have
+to login to the app again.</p>
+]]></content>
+  </entry>
+  
+</feed>

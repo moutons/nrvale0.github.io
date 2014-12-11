@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Puppet Noop via Collector - Differently Ambitious</title>
+  <meta name="author" content="Nathan Valentine">
+
+  
+  <meta name="description" content="Overview In a previous article I
+wrote about Puppet&rsquo;s noop mode which allows you to compare a node&rsquo;s current
+config state against the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feeds/all.atom.xml" rel="alternate" title="Differently Ambitious" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-3666894-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Differently Ambitious</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feeds/all.atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nrvale0.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Puppet Noop via Collector</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-15T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nrvale0.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>Overview</h1>
+
+<p>In a <a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop">previous article</a> I
+wrote about Puppet&rsquo;s noop mode which allows you to compare a node&rsquo;s current
+config state against the state specified in Puppet code without actually making
+any changes to the node. This is a super useful low-risk way of testing
+your Puppet code on production nodes and ensuring you don&rsquo;t break anything
+while testing. (Of course it is always useful to have
+infrastructure for automated testing but that is another discussion for another
+time.) I also wrote about the three commonly understood ways of invoking noop
+mode:</p>
+
+<ol>
+<li>via the &lsquo;noop = true&rsquo; setting in the &lsquo;[agent]&rsquo; section of puppet.conf</li>
+<li>via &lsquo;puppet agent -t &ndash;noop&rsquo; and &lsquo;puppet apply &ndash;noop &lt;puppet code&gt;&rsquo;</li>
+<li>via &lsquo;noop => true&rsquo; specified as a <a href="http://docs.puppetlabs.com/references/latest/metaparameter.html">metaparameter</a> of a Puppet <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_resources.html">resource</a></li>
+</ol>
+
+
+<p>In the first two examples above our noop mode is all-or-nothing; noop will
+be enforced for every resource Puppet is managing on our node. That provides
+the ultimate in safety but there are scenarios where we&rsquo;d like to enforce
+some resources and not others. The third option above provides the abilty
+to specify noop per-resource in our Puppet DSL code and while that is useful
+we certainly don&rsquo;t want to have to add that code to every resource we are
+testing.</p>
+
+<p>In this article we are going to look at two additional ways to specify noop
+for some subset of Puppet-managed resources:</p>
+
+<ol>
+<li>noop via <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_defaults.html">Resource Defaults</a></li>
+<li>noop via <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collectors</a></li>
+</ol>
+
+
+<h1>noop via Resource Defaults</h1>
+
+<p>For every <a href="http://docs.puppetlabs.com/references/latest/type.html">resource type</a> available in our
+Puppet code, whether that be via the core resource types or those added to our
+codebase via a Puppet <a href="http://forge.puppetlabs.com">module</a>, we can use
+Resource Default syntax to specify default attribute values. Let&rsquo;s look at
+some example code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">file</span> <span class="p">{</span> <span class="s">&#39;/tmp/file1&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">file</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">owner</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">group</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">mode</span> <span class="o">=&gt;</span> <span class="s">&#39;0644&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">nope</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">file</span> <span class="p">{</span> <span class="s">&#39;/tmp/file2&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">file</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">owner</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">group</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">mode</span> <span class="o">=&gt;</span> <span class="s">&#39;0600&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You might think the code above would create the files &lsquo;/tmp/file1&rsquo; and
+&lsquo;/tmp/file2&rsquo; and you would be close to correct. Note the &lsquo;noop => true&rsquo; on
+both file resources. Puppet is going to check whether these files exist with
+the specified attributes for ownership, group, etc and then if there is a
+misalignment between the state of the files on the system and the state
+specified in our code it is going to <em>tell you what it would like to, but
+cannot, change due to the noop metaparameter values</em>. Also, it would seem there
+is probably an opportunity for some code compression; we have specified
+identical values for attributes like &lsquo;owner&rsquo; in both of the file resources. Let&rsquo;s
+see an example of Resource Defaults which knocks out both of those issues:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">File</span> <span class="p">{</span> <span class="na">owner</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span> <span class="na">group</span> <span class="o">=&gt;</span> <span class="s">&#39;root&#39;</span><span class="p">,</span> <span class="na">mode</span> <span class="o">=&gt;</span> <span class="s">&#39;0644&#39;</span><span class="p">,</span> <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">file</span> <span class="p">{</span> <span class="s">&#39;/tmp/file1&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">file</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">file</span> <span class="p">{</span> <span class="s">&#39;/tmp/file2&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">file</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">mode</span> <span class="o">=&gt;</span> <span class="s">&#39;0600&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the code above the &ldquo;File {&hellip;&rdquo; line sets a series of defaults for all
+file resource types in the current
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_scope.html">scope</a>.
+For example, unless otherwise specified/overridden, all files created in the
+current scope will have a mode value of &lsquo;0644&rsquo;. As you can see, the
+&lsquo;/tmp/file2&rsquo; file resource above actually overrides both &lsquo;mode&rsquo; and &lsquo;noop&rsquo;
+values. Assuming I have saved the above code in /tmp/foo.pp, here&rsquo;s the output
+of a &lsquo;puppet apply&rsquo; run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> sudo puppet apply /tmp/foo.pp
+</span><span class='line'><span class="go">Notice: Compiled catalog for testnode.private in environment production in 0.12 seconds</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/File[/tmp/file1]/ensure: current_value absent, should be file (noop)</span>
+</span><span class='line'><span class="go">Notice: Class[Main]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Stage[main]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Finished catalog run in 0.31 seconds</span>
+</span><span class='line'><span class="gp">$</span> ls -l /tmp/file*
+</span><span class='line'><span class="go">-rw------- 1 root root 0 Apr 15 07:17 /tmp/file2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hopefully no great surprises there. :)</p>
+
+<p>Because the Resource Default syntax is available for all resource types, you
+might also do the following kinds of things:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">User</span> <span class="p">{</span> <span class="na">managehome</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="p">}</span>
+</span><span class='line'><span class="k">Package</span> <span class="p">{</span> <span class="na">provider</span> <span class="o">=&gt;</span> <span class="s">&#39;gem&#39;</span><span class="p">,</span> <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="p">}</span>
+</span><span class='line'><span class="k">Service</span> <span class="p">{</span> <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="s">&#39;running&#39;</span><span class="p">,</span> <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While there is some value in being able to specify noop for lots of resources
+in one fell swoop, there are a couple of limitations with the above approach:</p>
+
+<ul>
+<li><p>First, the Resource Defaults only apply in the current
+scope and child scopes. Since 90% of the Puppet code you write will live
+in a module with its own class-based
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_namespaces.html">namespace</a>
+and associated scope the impact of your Resource Defaults will be limited.
+That is a good thing and a bad thing. You <em>could</em> go into
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/dirs_manifest.html">site.pp</a>
+and specify Resource Defaults at global scope but then you are tweaking
+defaults for all resources on the node and that introduces the possibility
+for all kinds of odd interactions which you&rsquo;d probably rather avoid. Just as
+you would be careful doing things in global scope in other languages you should
+be careful doing things at global (site.pp) scope in Puppet.</p></li>
+<li><p>Second, if you wanted to enable noop mode for all Types using Resource
+Defaults you&rsquo;d have to explicitly do so for every Type in your Puppet codebase.
+Until the Puppet DSL supports some form of introspection (and maybe not even
+then) it isn&rsquo;t possible to know every Type available in your codebase. Even
+doing so for the core types, of which there are several dozen, would be a
+lot of ugly boilerplate code and it still wouldn&rsquo;t give you coverage for custom
+Types which come bundled with a <a href="http://forge.puppetlabs.com">Forge</a> module.
+you&rsquo;ll have to include a Resource Default statement for every resource type</p></li>
+</ul>
+
+
+<p>So, at best, it probably only makes sense to use Resource Defaults for
+enabling noop mode at the class/module level.</p>
+
+<p>Wouldn&rsquo;t it be nice if we could somehow query the list of managed resources
+from within the Puppet DSL and set noop where appropriate? Read on!</p>
+
+<h1>noop via Resource Collectors</h1>
+
+<p>Up to this point I&rsquo;ve written about &ldquo;resources managed on the node&rdquo; and been
+very careful to not explore that concept at any greater depth. Time for more
+Puppet fundamentals&hellip;</p>
+
+<p>It is a common misconception that during a <a href="http://docs.puppetlabs.com/references/latest/man/agent.html">Puppet agent</a> run the
+agent actually downloads the Puppet code from the Puppet master. Other
+configuration management systems often work that way but the design of Puppet
+is such that instead the Puppet master &lsquo;compiles a catalog&rsquo; which is
+essentially a compressed JSON document which contains all of the details of
+the resources to be managed on the requesting node. That
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/subsystem_catalog_compilation.html">catalog</a>
+is downloaded by the agent and passed to a layer in the Puppet agent called the
+<a href="http://docs.puppetlabs.com/learning/ral.html">Resource Abstraction Layer</a>
+which is responsible for converting the catalog into the desired node config
+state. There are some constructs in the Puppet DSL that allow us, as one of
+the last stages of catalog compilation, to manipulate the resources in the
+catalog.</p>
+
+<p>In this case I&rsquo;m referring to <a href="https://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collectors</a>. Let&rsquo;s take a look at some examples of Resource Collectors.</p>
+
+<p>Here&rsquo;s a simple resource collector to force all Package resources on the system
+to noop mode:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">Package</span> <span class="o">&lt;|</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This means all Package resources in the node&rsquo;s catalog will be noop&#8217;ed
+and thus the Puppet agent will <em>report</em> packages it would like to change but
+will not actually make those changes. A note for those who might be a little
+more advanced in their Puppet usage, know that Resource Collector operations are
+<a href="http://docs.puppetlabs.com/learning/ral.html">parse order independent</a>.</p>
+
+<p>There are scenarios where we might want to mark just specific packages for
+noop as opposed to the entire set of packages in the catalog. We can pick out
+a subset of packages using <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collector search expressions</a>.</p>
+
+<p>Here&rsquo;s an example of marking the &lsquo;kernel&rsquo; package noop:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">Package</span> <span class="o">&lt;|</span> <span class="na">title</span> <span class="o">==</span> <span class="s">&#39;kernel&#39;</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">latest</span><span class="p">,</span>
+</span><span class='line'>  <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>so if the &lsquo;kernel&rsquo; package is in our catalog and a newer version is available
+in our repositories we&rsquo;ll get a entry in the agent run report indicating as
+such but Puppet will not, perhaps thankfully, take it upon itself to install
+the new package.</p>
+
+<p>Here are some additional examples of Resource Collectors using search
+expressions:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">Package</span> <span class="o">&lt;|</span> <span class="na">title</span> <span class="o">==</span> <span class="s">&#39;openssl&#39;</span> <span class="na">or</span> <span class="na">title</span> <span class="o">==</span> <span class="s">&#39;openssh-server&#39;</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">latest</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">File</span> <span class="o">&lt;|</span> <span class="na">mode</span> <span class="o">==</span> <span class="s">&#39;0777&#39;</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">mode</span> <span class="o">=&gt;</span> <span class="s">&#39;0644&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">Service</span> <span class="o">&lt;|</span> <span class="na">title</span> <span class="o">==</span> <span class="s">&#39;selinux&#39;</span> <span class="na">or</span> <span class="na">title</span> <span class="o">==</span> <span class="s">&#39;rtools&#39;</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">stopped</span><span class="p">,</span>
+</span><span class='line'>  <span class="na">enable</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>though some of these are represent questionable practices in actual production.
+;)</p>
+
+<p>Resource Collectors, especially when paired with search expressions, give us
+a lot more flexibility to pick out catalog resources for noop mode but they
+suffer a similar limitation to Resource Defaults in that if we were to try
+to use them to noop all resources in the Catalog we&rsquo;d have to include
+a statement for each Resource Type in our catalog and we can never know the set
+of all available Resource Types in our codebase without some clever
+introspection capabilities not currently present in the DSL.</p>
+
+<h2>An Important Wrinkle with Resource Collectors</h2>
+
+<p>There&rsquo;s a very important, and surprising, wrinkle you should be aware of when
+you consider a Resource Collector; if you were to do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">User</span> <span class="o">&lt;|</span> <span class="o">|&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>that seems rather innocuous. &ldquo;For every user in my catalog ensure that user
+is present.&lsquo; At worst, you might override some code somewhere else that
+specified a particular user should be &#8216;ensure => absent&rsquo;, right? Well, there&rsquo;s
+a corner case involving <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_virtual.html">Virtual Resources</a>.
+If you collect a Resource Type which has Virtual Resources in the catalog you
+may very well instantiate those resources. Please read up on Virtual Resources
+before using the Collector.</p>
+
+<h1>Let&rsquo;s Review</h1>
+
+<p>We&rsquo;ve covered quite a bit of ground in the last two posts so let&rsquo;s step back
+for a second to get our bearings before we go on to the next article. We&rsquo;ve
+talked about:</p>
+
+<ul>
+<li>the basic concept of the noop mode in Puppet</li>
+<li>basic ways to invoke noop mode acrossed an entire Puppet enforcement run:
+
+<ul>
+<li>puppet agent -t &ndash;noop</li>
+<li>puppet apply &ndash;noop /tmp/foo.pp</li>
+</ul>
+</li>
+<li>a handful of ways to invoke noop mode for individual resources (metaparameter &lsquo;noop => true&rsquo;)</li>
+<li>invoking noop acrossed a limited set of resources:
+
+<ul>
+<li>Resource Defaults</li>
+<li>Resource Collectors</li>
+</ul>
+</li>
+</ul>
+
+
+<p>The end goal of all of this noop cleverness is to allow us to test our Puppet
+code on production nodes and catch any issues which might have snuck through
+earlier testing with non-production nodes. We want the ability to not only
+do coarse-grained/whole-catalog noop testing but also the ability to pick
+and choose which parts of our codebase and managed resources are in full
+enforcement or noop mode.</p>
+
+<p>In the next post we&rsquo;ll tie all of this together and start our investigation
+of the techniques I call &ldquo;deploy to noop&rdquo; which allows us to start picking
+out particular parts of the codebase but parts of our codebase for partciular
+sets of nodes in our production network.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Nathan Valentine</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-04-15T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/devops/'>devops</a>, <a class='category' href='/blog/categories/noop/'>noop</a>, <a class='category' href='/blog/categories/puppet/'>puppet</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/10/the-basics-of-puppet-noop/" title="Previous Post: the basics of puppet noop">&laquo; the basics of puppet noop</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/" title="Next Post: 'Direct Play w/ Fallback' solves all your Roku+Plex+YouTube problems">&#8216;Direct Play w/ Fallback&#8217; solves all your Roku+Plex+YouTube problems &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Nathan Valentine -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'differentlyambitious';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/';
+        var disqus_url = 'http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

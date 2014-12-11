@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217; - Differently Ambitious</title>
+  <meta name="author" content="Nathan Valentine">
+
+  
+  <meta name="description" content="This is not my beautiful house! I&rsquo;m going to tell you a story. You are the protagonist in this story and you are in TechOps or perhaps you are &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feeds/all.atom.xml" rel="alternate" title="Differently Ambitious" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-3666894-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Differently Ambitious</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feeds/all.atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nrvale0.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-10-16T01:00:00-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nrvale0.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>This is not my beautiful house!</h2>
+
+<p>I&rsquo;m going to tell you a story. You are the protagonist in this story and you are in TechOps or perhaps you are a Developer.</p>
+
+<p>There are things you enjoy about your work: you enjoy learning and mastering new technoloigies, you get satisfaction from knowing that the systems you design are resource efficient and reliable, and lastly you enjoy using your skills to solve problems with your team members and for your employer. Because you enjoy these things you spend lots of time, considerable free time even, keeping up with the <a href="http://puppetconf.com">state-of-the-art</a> and you are excited about the possibilities surrounding this nebulous term <a href="https://en.wikipedia.org/wiki/DevOps">DevOps</a> and all of the exotic crash-landed-in-the-deserts-of-New-Mexico technology which has been flowing out of companies like <a href="https://www.youtube.com/watch?v=IkEQb9oHPwk">Spotify</a>, <a href="https://www.youtube.com/watch?v=YrxnVKZeqK8">Google</a>, <a href="https://www.youtube.com/watch?v=C_WuUgTqgOc">Facebook</a>, and <a href="https://www.youtube.com/watch?v=QyS-IIkeFp4">Twitter</a> in the last couple of years.</p>
+
+<p>There are also some things you don&rsquo;t like about your work: drifting project requirements, chronically late project delivery, the amount of effort expended propping up poorly implemented legacy systems, and the sheer amount of time you spend cutting <a href="https://en.wikipedia.org/wiki/Firebreak">firebreaks</a> in the infrastructure for problems which could be avoided if only your team had the time to rampup on <a href="http://continuousdelivery.com/">better</a>, <a href="http://theleanstartup.com/">more modern</a>, <a href="http://kanbanblog.com/explained/">processes</a> and <a href="http://jenkins-ci.org/">tooling</a>.</p>
+
+<p>What are your options?</p>
+
+<p>Well, you could sell everything, use that money to buy a <a href="http://www.gdaykombis.co.uk/cms_images_products/2145_1_large.jpg">Westie</a> campervan and The Canon of DevOps and embark on cross-country odyssey, stopping to learn <a href="http://www.muskettmountaineering.co.uk/wp-content/uploads/2013/10/P1030770-1280x854.jpg">multi-pitch sport climbing</a> in Yosemite while dropping your body-fat to 9%, and ultimately ending up many months later at the doorstep of a San Francisco startup as a lean, mean, and freshly-annointed Squire of DevOps. Or you could quit being a flake and triage the most pressing issues at your current org and strategize how you might go about fixing them. ( Also, we have plenty of people like that in the Bay Area. Please don&rsquo;t do that! ;) )</p>
+
+<p>After some reading and lot of thinking you come to the conclusion the first problem which must be resolved is eliminating the multi-week, error-prone, and unreproducable infrastructure deployments which undergird your organization&rsquo;s applications. One Thursday evening over beers you and your two best friends from TechOps pronounce to those within earshot</p>
+
+<p>&ldquo;No longer shall we hand-configure servers! No longer shall we go without service monitoring! Now and forevermore we shall Puppetize!&rdquo;</p>
+
+<p>And then you are kicked out of Applebee&rsquo;s for being dorky.</p>
+
+<h2>And now I shall sing to you the song of my people.</h2>
+
+<p>Getting kicked out of Applebee&rsquo;s turns out to be a boon (in so many ways). In your somewhat buzzed bravado your <a href="http://users.telenet.be/mydotcom/graph/nmap_matrix5.png">Confederation of Rogue TechOps</a> immediately downloads <a href="http://puppetlabs.com/puppet/puppet-enterprise">Puppet Enterprise</a> and each member burns through the courses in the <a href="http://puppetlabs.com/learn">Puppet Labs Workshop</a>. You learn how to deploy and configure raw new nodes with <a href="https://www.youtube.com/watch?v=v7jgwPf85BY">Razor</a>, how to leverage pre-written modules posted to the <a href="http://forge.puppetlabs.com">Puppet Forge</a>, how to structure your code and classify your nodes with the <a href="http://garylarizza.com/blog/2014/02/17/puppet-workflow-part-2/">Roles and Profiles</a> pattern, and, perhaps most importantly, how to test and promote Puppet code using <a href="http://garylarizza.com/blog/2014/02/18/puppet-workflow-part-3/">Puppet environments and r10k</a>. On the last day you learn to coordinate multi-node deployments using a clever combination of <a href="https://www.youtube.com/watch?v=vOKT35VE_hA">MCollective</a> and <a href="http://forge.puppetlabs.com/dalen/puppetdbquery">dalen/puppetdbquery</a> and it is good. Your <a href="https://cloud.google.com/products/compute-engine/">Google Compute Engine</a> cloud is a crystal palace and when the wind blows through the <a href="http://www.dvice.com/sites/dvice/files/styles/blog_post_media/public/images/Oobject-15-skyscrapers-on-hold-Dubai-Towers.jpg?itok=bjMpiIs_">spires</a> it resonates in the frequency of DevOps. And it is purple.</p>
+
+<p>You take what you have learned back to the office and the next application infrastructure delivery proceeds from greenfield to production-grade with only minor bumps and ahead of schedule and in another fit of bravado you announce to the CTO, &ldquo;We shall now Puppetize All The Things! I shall now have root on the AIX nodes!&rdquo; at which point you are bludgeoned from behind by the head of the Change Control Board. When you awake you are in your cube and duct-taped to your chair. Your keyboad is out of reach. The world is spinning. Just as you lapse back into unconsciousness you hear the head of the CAB say to your CTO,</p>
+
+<p>&ldquo;And how, exactly, are we supposed to know what Puppet is changing on these systems! Does it integrate with our deployment runbook wiki? No!&rdquo;</p>
+
+<p>Your last thought before the world goes dark, &ldquo;I may have overreached. If only Puppet supported a way to <a href="http://docs.puppetlabs.com/pe/latest/console_event-inspector.html">view</a> pending system changes without actually enforcing them(<a href="http://docs.puppetlabs.com/references/latest/metaparameter.html#noop">1</a>,<a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop/">2</a>,<a href="https://nrvale0.github.io/posts/2014/04/puppet-noop-via-resource-defaults-resource-collectors/">3</a>)! And if only I had a way to toggle that functionality from code!&rdquo;</p>
+
+<p>We might even call it &ldquo;Deploy to Noop&rdquo;.</p>
+
+<h2>Deploy to Noop</h2>
+
+<p>That thing you have envisioned&hellip;it&rsquo;s really really easy to implement! Let&rsquo;s start simple and work our way up to something which could be deployed in production.</p>
+
+<p>If you haven&rsquo;t already you should first read up on Puppet&rsquo;s &lsquo;noop mode&rsquo;:</p>
+
+<ul>
+<li><a href="http://docs.puppetlabs.com/references/latest/metaparameter.html#noop">Puppet Metaparameter Reference - noop</a></li>
+<li><a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop/">The Basics of Puppet &ldquo;noop mode&rdquo;</a></li>
+<li><a href="https://nrvale0.github.io/posts/2014/04/puppet-noop-via-resource-defaults-resource-collectors/">Puppet noop via Resource Defaults and Resource Collectors</a></li>
+</ul>
+
+
+<p>Now that you understand Puppet&rsquo;s noop mode, I want to point you to a little-known but super-useful <a href="http://forge.puppetlabs.com">Puppet Forge</a> module: <a href="http://forge.puppetlabs.com/trlinkin/noop">trlinkin/noop</a>. The thrust of it is this:</p>
+
+<blockquote><p>Calling the function &lsquo;noop()&rsquo; bundled with trlinkin/noop puts all resources in the current scope and all child scopes into noop mode.</p></blockquote>
+
+<p>If your site.pp looks like so:</p>
+
+<p>/etc/puppetlabs/puppet/manifests/site.pp:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="k">node</span> <span class="k">default</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span><span class="s">&#39;Hello, World! I think you are going to see a noop here ---&gt;&#39;</span><span class="p">:}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>you should then see the notify resource &lsquo;enforced&rsquo;, not really enforced, in noop:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> sudo puppet module install trlinkin/noop
+</span><span class='line'><span class="go">Notice: Preparing to install into /etc/puppetlabs/puppet/modules ...</span>
+</span><span class='line'><span class="go">Notice: Downloading from https://forge.puppetlabs.com ...</span>
+</span><span class='line'><span class="go">Notice: Installing -- do not interrupt ...</span>
+</span><span class='line'><span class="go">/etc/puppetlabs/puppet/modules</span>
+</span><span class='line'><span class="go">└── trlinkin-noop (v0.0.2)</span>
+</span><span class='line'>
+</span><span class='line'><span class="gp">$</span> sudo puppet apply /etc/puppetlabs/puppet/manifests/site.pp
+</span><span class='line'><span class="go">Notice: Compiled catalog for ensenada.nathanvalentine.private in environment production in 0.07 seconds</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/Node[default]/Notify[Hello, World! I think you are going to see a noop here ---&gt;]/message: current_value absent, should be Hello, World! I think you are going to see a noop here ---&gt; (noop)</span>
+</span><span class='line'><span class="go">Notice: Node[default]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Class[Main]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Stage[main]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Finished catalog run in 0.49 seconds</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So that&rsquo;s pretty interesting! But the noop() call in our site.pp currently sets noop at global scope and therefore turns off enforcement for all resources in all node statements. We have to step back and think about the problem we are trying to solve.</p>
+
+<blockquote><p>Because we are developing a Puppet codebase and we have a brownfield environment, we would really like to default all nodes to noop and then selectively enable enforcement on a sample set of a particular server role. For instance, Noop All The Things except for web servers which are not in production. We iterate over that process and eventually every node in every role in our environment has transitioned from noop-Puppet to Puppet runs enforcing our well-smoketested-on-production-nodes codebase!</p></blockquote>
+
+<p>What if there were a tool that allowed us to set top-scope variable values in Puppet code based on Puppet Facts? Oh!! Hiera!! Let&rsquo;s modify our site.pp like so:</p>
+
+<p>/etc/puppetlabs/puppet/manifests/site.pp:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="c"># Force noop mode unless specified otherwise in hiera</span>
+</span><span class='line'><span class="nv">$force_noop</span> <span class="o">=</span> <span class="na">hiera</span><span class="p">(</span><span class="s">&#39;force_noop&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="na">unless</span> <span class="k">false</span> <span class="o">==</span> <span class="nv">$force_noop</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;Puppet noop safety latch is enabled in site.pp&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span><span class="c"></span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Allow hiera to assign classes</span>
+</span><span class='line'><span class="na">hiera_include</span><span class="p">(</span><span class="s">&#39;classes&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">node</span> <span class="k">default</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;The value of &#39;force_noop is ${force_noop}&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then we&rsquo;ll set up Hiera to reference YAML files and inject a layer in our Hiera router for &lsquo;certname&rsquo;:</p>
+
+<p>/etc/puppetlabs/puppet/hiera.yaml:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='YAML'><span class='line'><span class="nn">---</span>
+</span><span class='line'><span class="l-Scalar-Plain">:backends</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">yaml</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">:yaml</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">:datadir</span><span class="p-Indicator">:</span> <span class="s">&quot;/etc/puppetlabs/puppet/data&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">:hierarchy</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="s">&quot;clientcert/%{::clientcert}&quot;</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">common</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/etc/puppetlabs/puppet/data/common.yaml:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='YAML'><span class='line'><span class="nn">---</span>
+</span><span class='line'><span class="l-Scalar-Plain">force_noop</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and the clientcert YAML for the nodes in our environment:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> <span class="nb">cd</span> /etc/puppetlabs/puppet/data/clientcert
+</span><span class='line'><span class="gp">$</span> tree clientcert
+</span><span class='line'><span class="go">clientcert</span>
+</span><span class='line'><span class="go">├── master.yaml</span>
+</span><span class='line'><span class="go">└── ubuntu1204-0.yaml</span>
+</span><span class='line'><span class="gp">$</span> cat clientcert/master.yaml clientcert/ubuntu1204-0.yaml
+</span><span class='line'><span class="go">---</span>
+</span><span class='line'><span class="go">force_noop: false</span>
+</span><span class='line'><span class="go">---</span>
+</span><span class='line'><span class="go">force_noop: true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To break it down, the YAML above states:</p>
+
+<ol>
+<li>our Puppet master, named &lsquo;master&rsquo;, will run in enforcement mode</li>
+<li>our agent node, named &lsquo;ubuntu1204-0.yaml&rsquo;, will run in noop mode</li>
+</ol>
+
+
+<p>Now, if you understand Hiera, you should see our ability to sift-and-sort nodes
+for enforcement or noop is only limited by the routing logic in our Hiera router.
+It&rsquo;s worth noting that the &lsquo;force_noop&rsquo; top-scope variable can also be set from:</p>
+
+<ol>
+<li>Hiera backends other than YAML. Perhaps something like hiera-http?</li>
+<li>an External Node Classifier or the Puppet Enterprise 3.4 Node Classifier Puppet App</li>
+<li>by editing Puppet Enterprise Groups and Nodes in the PE Console.</li>
+</ol>
+
+
+<p>Some of you are probably saying &lsquo;Nifty!&rsquo; and others of you are probably saying, &ldquo;What the hell just happened?!?!&rdquo;. I have good news&hellip;I&rsquo;ve put together a self-contained Vagrant environment which you can use to play with Deploy to Noop until it clicks. You can find the environment here:</p>
+
+<p><a href="http://github.com/nrvale0/deploy-to-noop-part-1">http://github.com/nrvale0/deploy-to-noop-part1</a></p>
+
+<h2>&ldquo;This is flipping cool and I&rsquo;m going to run off and put it into Production immediately!&rdquo;</h2>
+
+<p>Awesome. Glad you like it. I&rsquo;ve used this technique at a number of customer sites and I think it is super-useful. There are a few caveats:</p>
+
+<p>When you are making changes to your Hiera data to turn off the noop safety latch on a node or set of nodes, you&rsquo;d best understand how to either manually query and verify the results from Hiera, or even better, know how to wire up your CI system / deployment orchestration system to test that you aren&rsquo;t accidentally turning off noop in places you don&rsquo;t expect. Here&rsquo;s an example of how to query Hiera from the master command-line assuming the Hiera data and router config shown above:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> hiera -c /etc/puppetlabs/puppet/hiera.yaml force_noop ::environment<span class="o">=</span>production ::certname<span class="o">=</span>ubuntu1204-0
+</span><span class='line'><span class="go">false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Also, noop agent runs have the potential to generate rather large Report Logs every time the agent runs. &ldquo;These are the things I would like to change but I cannot because I am in noop mode!&rdquo; If your Puppet master is PuppetDB-integrated (default on Puppet Enterprise) this can result in your PuppetDB consuming quite a bit of storage. PuppetDB data has a TTL so as you disable the noop safety for more and more of your nodes the amount of PuppetDB storage required (assuming a constant number nodes and a steady agent run interval) should decrease. I&rsquo;ve had clients who had thousands of nodes in noop mode for months at a time and they have PuppetDB databases in the 100&rsquo;s of GBs range. Be prepared for this when you are laying out the storge for your Puppet master/PuppetDB server.</p>
+
+<p>I&rsquo;d also encourage you to move your nodes into enforcement as rapidly as possibly. What&rsquo;s the point of writing Puppet code if you never allow Puppet to converge the configuration of the nodes?!? This is meant as a temporary hack to allow you to get Puppetizing quickly before you have&hellip;.dum dum dum&hellip;developed a full CI-integrated service delivery/deployment pipline. But that&rsquo;s a topic for another blog! ;)</p>
+
+<h2>Conclusion</h2>
+
+<p>Feel free to email <a href="mailto:nrvale0@gmail.com">me</a> if you have questions. Pull Requests and bug reports are welcome and encouraged!</p>
+
+<p>Happy de-brownfielding!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Nathan Valentine</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-10-16T01:00:00-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/devops/'>devops</a>, <a class='category' href='/blog/categories/noop/'>noop</a>, <a class='category' href='/blog/categories/puppet/'>puppet</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/05/25/android-insufficient-storage-fix/" title="Previous Post: Android 'Insufficient storage' fix">&laquo; Android &#8216;Insufficient storage&#8217; fix</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/" title="Next Post: .gitignore to allow 'empty' directory">.gitignore to allow &#8216;empty&#8217; directory &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Nathan Valentine -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'differentlyambitious';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/';
+        var disqus_url = 'http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

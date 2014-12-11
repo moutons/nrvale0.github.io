@@ -1,0 +1,585 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The Basics of Puppet Noop - Differently Ambitious</title>
+  <meta name="author" content="Nathan Valentine">
+
+  
+  <meta name="description" content="Overview There are a few solutions out there for configuration management and server
+orchestration these days but over the next few articles I&rsquo; &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feeds/all.atom.xml" rel="alternate" title="Differently Ambitious" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-3666894-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Differently Ambitious</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feeds/all.atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nrvale0.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">The Basics of Puppet Noop</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-10T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nrvale0.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>Overview</h1>
+
+<p>There are a few solutions out there for configuration management and server
+orchestration these days but over the next few articles I&rsquo;m going to talk about
+an oft-overlooked feature unique to
+<a href="http://puppetlabs.com">Puppet</a> called &ldquo;noop mode&rdquo;. If you are old-hand with
+Puppet please be patient. I&rsquo;m going to start with the basics of noop mode and
+build to some advanced deployment techniques I collectively refer to as
+&ldquo;deploy to noop&rdquo; which greatly reduce guesswork and hand-wringing when doing
+brownfield Puppet and Puppet Enterprise deployments in large, multi-platform,
+complicated environments.</p>
+
+<h1>A Quick Intro to Puppet</h1>
+
+<p>For those who might not be familar with Puppet, it is a programming language
+and toolchain for managing the configuration of the nodes in your computing
+infrastructure. Traditionally this has meant UNIX-like operating systems but
+as of the last couple of years that has expanded to include MS Windows systems
+and even network and storage devices. Instead of logging into these nodes
+and hand-configuring nodes we instead choose to manage nodes via the Puppet
+Domain Specific Language(DSL) and a server-client ( master-agent in
+Puppet parlance ) architecture which centralizes and automates the enforcement
+of our nodes&#8217; desired state as specified in our Puppet code. The process of
+taking a node from current config state to our desired state is called
+&ldquo;convergence&rdquo;. In the example below I show some Puppet code which lives in
+my Puppet master&rsquo;s cached copy of my Puppet codebase and which I&rsquo;ve chosen to
+have enforced on my Ubuntu workstation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">user</span> <span class="p">{</span> <span class="s">&#39;testuser&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">package</span> <span class="p">{</span> <span class="s">&#39;vim-haproxy&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">installed</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above code will converge the state of my node such that at the end of
+a Puppet agent run I should have a user called &lsquo;testuser&rsquo; and the package
+&lsquo;vim-haproxy&rsquo; will be installed. Let&rsquo;s see the output of a manual verbose
+<a href="http://docs.puppetlabs.com/references/latest/man/agent.html">Puppet agent</a> run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> sudo puppet agent -t
+</span><span class='line'><span class="go">Notice: Compiled catalog for testnode.private in environment production in 0.75 seconds</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/Package[vim-haproxy]/ensure: ensure changed &#39;purged&#39; to &#39;present&#39;</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/User[testuser]/ensure: created</span>
+</span><span class='line'><span class="go">Notice: Finished catalog run in 7.10 seconds</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can manually check our new state against our desired state with the usual
+UNIX command-line tools:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> id testuser
+</span><span class='line'><span class="go">uid=1004(testuser) gid=1007(testuser) groups=1007(testuser)</span>
+</span><span class='line'><span class="gp">$</span> dpkg -l vim-haproxy
+</span><span class='line'><span class="go">Desired=Unknown/Install/Remove/Purge/Hold</span>
+</span><span class='line'><span class="go">| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend</span>
+</span><span class='line'><span class="go">|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)</span>
+</span><span class='line'><span class="go">||/ Name           Version      Architecture Description</span>
+</span><span class='line'><span class="go">+++-==============-============-============-=================================</span>
+</span><span class='line'><span class="go">ii  vim-haproxy        2:7.4.000-1u amd64        Vi IMproved - enhanced vi editor </span>
+</span><span class='line'><span class="gp">$</span> id testuser2
+</span><span class='line'><span class="go">id: testuser2: no such user</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or with Puppet toolchain itself with the
+&lsquo;puppet resource&rsquo; command where &lsquo;puppet resource&rsquo; takes a type and the
+title of the resource we&rsquo;d like to verify:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> puppet resource user testuser
+</span><span class='line'><span class="go">user { &#39;testuser&#39;:</span>
+</span><span class='line'><span class="go">  ensure =&gt; &#39;present&#39;,</span>
+</span><span class='line'><span class="go">  gid    =&gt; &#39;1007&#39;,</span>
+</span><span class='line'><span class="go">  home   =&gt; &#39;/home/testuser&#39;,</span>
+</span><span class='line'><span class="go">  bash  =&gt; &#39;/bin/sh&#39;,</span>
+</span><span class='line'><span class="go">  uid    =&gt; &#39;1004&#39;,</span>
+</span><span class='line'><span class="go">}</span>
+</span><span class='line'><span class="gp">$</span> puppet resource package vim-haproxy
+</span><span class='line'><span class="go">package { &#39;vim-haproxy&#39;:</span>
+</span><span class='line'><span class="go">  ensure =&gt; &#39;1.4.24-1&#39;,</span>
+</span><span class='line'><span class="go">}</span>
+</span><span class='line'><span class="gp">$</span> puppet resource user testuser2
+</span><span class='line'><span class="go">user { &#39;testuser2&#39;:</span>
+</span><span class='line'><span class="go">  ensure =&gt; &#39;absent&#39;,</span>
+</span><span class='line'><span class="go">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s consider the output of the &lsquo;puppet resource&rsquo; verification commands above.
+If you are familar with the Puppet DSL you&rsquo;ll notice that the &lsquo;puppet resource&rsquo;
+command spits out valid Puppet DSL which represents the current config state
+of our node. I threw in an extra query for the user &lsquo;testuser2&rsquo; to demonstrate
+the output of the &lsquo;puppet resource&rsquo; command when we query for a resource which
+is not present on the node. &lsquo;testuser2&rsquo; is not on our node so we&rsquo;d have to
+&lsquo;ensure => absent&rsquo; in Puppet code to get the current config state.</p>
+
+<p>Some readers might be saying, &ldquo;I&rsquo;m already familar with the &lsquo;id&rsquo; and &lsquo;dpkg&rsquo;
+commands on Ubuntu so why bother with the &lsquo;puppet resource&rsquo; queries at all?&rdquo;
+Well, consider that once you become proficient with Puppet you might be writing
+Puppet code to manage users and packages on many different types of systems
+and &lsquo;dpkg&rsquo; and &lsquo;id&rsquo; may not be present on all of those platforms.
+&lsquo;puppet resource&rsquo; should work everywhere you have Puppet installed!</p>
+
+<p>We&rsquo;ve had a quick fly-by of how Puppet works. There&rsquo;s plenty more to learn
+at <a href="http://docs.puppetlabs.com">http://docs.puppetlabs.com</a>. Let&rsquo;s get back
+to our discussion of noop mode.</p>
+
+<h1>What is noop mode?</h1>
+
+<p>In the examples I provided above we converged a node from its present state to
+the desired state as captured in our Puppet codebase. That workflow is fine
+if we have spun up devtest nodes for testing our Puppet code but it&rsquo;s not always
+possible to have a devtest node which perfectly mirrors the config state of a
+node in our production environment. Puppet&rsquo;s noop mode allows us to see the
+changes Puppet would <em>like</em> to make while preventing Puppet from actually
+performing the convergence. Once we start digging into Puppet we are going to
+see there are lots of different places we can enable noop mode and where we
+choose to enable noop mode has an impact on which and how many changes we
+prevent.</p>
+
+<p>In this article we are going to cover only the three most widely known ways
+of enabling noop mode:</p>
+
+<ol>
+<li>in puppet.conf</li>
+<li>as a command-line parameter to the &lsquo;puppet agent&rsquo; and &lsquo;puppet apply&rsquo;
+commands.</li>
+<li>as a resource metaparameter</li>
+</ol>
+
+
+<h2>Enabling noop mode in puppet.conf</h2>
+
+<p>If we want absolute assurance that Puppet will only ever report the changes
+it would like to make without ever actually making those changes we can do so
+via a setting in the node&rsquo;s puppet.conf.</p>
+
+<p>FLOSS Puppet and Puppet Enterprise have the puppet.conf file
+in slightly different locations. The easiest way to find your puppet.conf file
+is with the following command:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> sudo puppet agent --configprint config
+</span><span class='line'><span class="go">/etc/puppet/puppet.conf</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you wanted to force noop mode for all Puppet agent runs you simply set
+&lsquo;noop = true&rsquo; in the &lsquo;[agent]&rsquo; section of your puppet.conf as shown below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span> puppet.conf
+</span><span class='line'><span class="go">...</span>
+</span><span class='line'><span class="go">[agent]</span>
+</span><span class='line'><span class="go">  noop = true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s see how that impacts a Puppet agent run after we unwind the changes we
+made in our previous testing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> sudo puppet resource user testuser <span class="nv">ensure</span><span class="o">=</span>absent
+</span><span class='line'><span class="go">Notice: /User[testuser]/ensure: removed</span>
+</span><span class='line'><span class="go">user { &#39;testuser&#39;:</span>
+</span><span class='line'><span class="go">  ensure =&gt; &#39;absent&#39;,</span>
+</span><span class='line'><span class="go">}</span>
+</span><span class='line'><span class="gp">$</span> sudo puppet resource package vim-haproxy <span class="nv">ensure</span><span class="o">=</span>absent
+</span><span class='line'><span class="go">Notice: /Package[vim-haproxy]/ensure: removed</span>
+</span><span class='line'><span class="go">package { &#39;vim-haproxy&#39;:</span>
+</span><span class='line'><span class="go">  ensure =&gt; &#39;purged&#39;,</span>
+</span><span class='line'><span class="go">}</span>
+</span><span class='line'><span class="gp">$</span> sudo puppet agent -t
+</span><span class='line'><span class="go">Notice: Compiled catalog for testnode.private in environment production in 0.69 seconds</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/Package[vim-haproxy]/ensure: current_value purged, should be present (noop)</span>
+</span><span class='line'><span class="go">Notice: /Stage[main]/Main/User[testuser]/ensure: current_value absent, should be present (noop)</span>
+</span><span class='line'><span class="go">Notice: Class[Main]: Would have triggered &#39;refresh&#39; from 2 events</span>
+</span><span class='line'><span class="go">Notice: Stage[main]: Would have triggered &#39;refresh&#39; from 1 events</span>
+</span><span class='line'><span class="go">Notice: Finished catalog run in 0.53 seconds</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can see by the &lsquo;(noop)&rsquo; at the end of the lines above that Puppet wanted
+to converge the user and the package but did not due to our noop setting.
+If you run &lsquo;puppet resource&rsquo; for the user and the package now the results of the
+queries would verify that neither testuser nor the vim-haproxy package are
+installed.</p>
+
+<p>Congratulations, you have absolute assurance Puppet is never going to converge
+your node but, um, that&rsquo;s kind of the point of a configuration management
+system so, in the end, perhaps that is not very useful. Go ahead and remove
+the &lsquo;noop = true&rsquo; from your puppet.conf and we&rsquo;ll look at a couple more ways
+you can enable noop mode.</p>
+
+<h2>Enabling noop mode during manual &lsquo;puppet agent&rsquo; or &lsquo;puppet apply&rsquo; runs</h2>
+
+<p>I&rsquo;m not going to get into the difference between the <a href="http://docs.puppetlabs.com/references/latest/man/agent.html">&lsquo;puppet agent&rsquo;</a>
+and <a href="http://docs.puppetlabs.com/references/latest/man/apply.html">&lsquo;puppet apply&rsquo;</a>
+commands in this article but you can click through
+the provided links to dig into the details. For now it is sufficient to say
+they are two ways you can converge your system to a state specified in Puppet
+code. For either command if you instead preferred to see what Puppet would
+like to change without actually making any changes you could do so like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> puppet agent -t --noop
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> puppet apply --noop /path/to/puppetcode.pp
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and you will see output appended with &lsquo;(noop)&rsquo; and could verify the config
+state of your node had not changed with &lsquo;puppet resource&rsquo; queries just as in
+the case where you had specified noop mode in your puppet.conf.</p>
+
+<h2>Enable noop mode as a Resource Metaparameter</h2>
+
+<p>To this point in the article I&rsquo;ve held off on some Puppet DSL jargon which is
+now necessary. First, please take a look at the following Puppet DSL code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">user</span> <span class="p">{</span> <span class="s">&#39;testuser&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+</span><span class='line'>  <span class="k">noop</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">package</span> <span class="p">{</span> <span class="s">&#39;vim-haproxy&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the code shown above we have two &lsquo;resources&rsquo;:</p>
+
+<ol>
+<li>a user resource with title &lsquo;testuser&rsquo; with attribute ensure value present.</li>
+<li>a package resource with title &lsquo;vim-haproxy&rsquo; with attribute ensure value
+present.</li>
+</ol>
+
+
+<p>There&rsquo;s something a little special about the user resource though. There&rsquo;s
+an additional attribute &lsquo;noop&rsquo; with a value of &lsquo;true&rsquo;. The &lsquo;noop&rsquo; attribute
+is what&rsquo;s called a
+<a href="http://docs.puppetlabs.com/references/latest/metaparameter.html">metaparameter</a>.
+Let&rsquo;s just say that metaparameters are present for all
+<a href="http://docs.puppetlabs.com/references/latest/type.html">Types</a>
+in the Puppet DSL and leave it at that for now. The important take-away here
+is that for any resource type you are attempting to manage in the DSL you
+can set &lsquo;noop => true&rsquo; and even if you have not enabled noop mode from
+puppet.conf nor from the command-line that particular resource will not be
+converged. Also important to note is that barring a change in the puppet.conf
+or a noop passed at the command-line the package the above code <em>will</em> install
+the vim-haproxy package. The noop metaparameter is a way to enforce noop mode
+with a very fine resolution. In this case for just a single resource.</p>
+
+<h1>Where have we been and where are we going?</h1>
+
+<p>In this article I provided some very basic examples of Puppet code and we
+talked a little bit about config state convergence. We also stepped through
+various ways you can enable Puppet&rsquo;s &ldquo;noop mode&rdquo; to get a convergence dry-run.
+Noop mode is useful in lots of situations but our particular use case
+is for testing config state changes on production systems while ensuring
+we aren&rsquo;t going to make any changes to that production system and
+therefore potentially break production. We saw three places where we
+could easily enable noop mode even as a Puppet beginner.</p>
+
+<p>Upcoming articles will require more advanced understanding of the Puppet DSL
+and the Puppet stack. I will introduce more sophisticated ways of utilizing
+noop mode for testing and verification.</p>
+
+<p>Please stay tuned and thanks for reading.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Nathan Valentine</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-04-10T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/devops/'>devops</a>, <a class='category' href='/blog/categories/noop/'>noop</a>, <a class='category' href='/blog/categories/puppet/'>puppet</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/04/15/puppet-noop-via-collector/" title="Next Post: puppet noop via collector">puppet noop via collector &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Nathan Valentine -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'differentlyambitious';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/';
+        var disqus_url = 'http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

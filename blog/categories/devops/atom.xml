@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Devops | Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/blog/categories/devops/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Turning the Brownfield Green - Aka Puppet and 'Deploy to Noop']]></title>
+    <link href="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/"/>
+    <updated>2014-10-16T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop</id>
+    <content type="html"><![CDATA[<h2>This is not my beautiful house!</h2>
+
+<p>I&rsquo;m going to tell you a story. You are the protagonist in this story and you are in TechOps or perhaps you are a Developer.</p>
+
+<p>There are things you enjoy about your work: you enjoy learning and mastering new technoloigies, you get satisfaction from knowing that the systems you design are resource efficient and reliable, and lastly you enjoy using your skills to solve problems with your team members and for your employer. Because you enjoy these things you spend lots of time, considerable free time even, keeping up with the <a href="http://puppetconf.com">state-of-the-art</a> and you are excited about the possibilities surrounding this nebulous term <a href="https://en.wikipedia.org/wiki/DevOps">DevOps</a> and all of the exotic crash-landed-in-the-deserts-of-New-Mexico technology which has been flowing out of companies like <a href="https://www.youtube.com/watch?v=IkEQb9oHPwk">Spotify</a>, <a href="https://www.youtube.com/watch?v=YrxnVKZeqK8">Google</a>, <a href="https://www.youtube.com/watch?v=C_WuUgTqgOc">Facebook</a>, and <a href="https://www.youtube.com/watch?v=QyS-IIkeFp4">Twitter</a> in the last couple of years.</p>
+
+<p>There are also some things you don&rsquo;t like about your work: drifting project requirements, chronically late project delivery, the amount of effort expended propping up poorly implemented legacy systems, and the sheer amount of time you spend cutting <a href="https://en.wikipedia.org/wiki/Firebreak">firebreaks</a> in the infrastructure for problems which could be avoided if only your team had the time to rampup on <a href="http://continuousdelivery.com/">better</a>, <a href="http://theleanstartup.com/">more modern</a>, <a href="http://kanbanblog.com/explained/">processes</a> and <a href="http://jenkins-ci.org/">tooling</a>.</p>
+
+<p>What are your options?</p>
+
+<p>Well, you could sell everything, use that money to buy a <a href="http://www.gdaykombis.co.uk/cms_images_products/2145_1_large.jpg">Westie</a> campervan and The Canon of DevOps and embark on cross-country odyssey, stopping to learn <a href="http://www.muskettmountaineering.co.uk/wp-content/uploads/2013/10/P1030770-1280x854.jpg">multi-pitch sport climbing</a> in Yosemite while dropping your body-fat to 9%, and ultimately ending up many months later at the doorstep of a San Francisco startup as a lean, mean, and freshly-annointed Squire of DevOps. Or you could quit being a flake and triage the most pressing issues at your current org and strategize how you might go about fixing them. ( Also, we have plenty of people like that in the Bay Area. Please don&rsquo;t do that! ;) )</p>
+
+<p>After some reading and lot of thinking you come to the conclusion the first problem which must be resolved is eliminating the multi-week, error-prone, and unreproducable infrastructure deployments which undergird your organization&rsquo;s applications. One Thursday evening over beers you and your two best friends from TechOps pronounce to those within earshot</p>
+
+<p>&ldquo;No longer shall we hand-configure servers! No longer shall we go without service monitoring! Now and forevermore we shall Puppetize!&rdquo;</p>
+
+<p>And then you are kicked out of Applebee&rsquo;s for being dorky.</p>
+
+<h2>And now I shall sing to you the song of my people.</h2>
+
+<p>Getting kicked out of Applebee&rsquo;s turns out to be a boon (in so many ways). In your somewhat buzzed bravado your <a href="http://users.telenet.be/mydotcom/graph/nmap_matrix5.png">Confederation of Rogue TechOps</a> immediately downloads <a href="http://puppetlabs.com/puppet/puppet-enterprise">Puppet Enterprise</a> and each member burns through the courses in the <a href="http://puppetlabs.com/learn">Puppet Labs Workshop</a>. You learn how to deploy and configure raw new nodes with <a href="https://www.youtube.com/watch?v=v7jgwPf85BY">Razor</a>, how to leverage pre-written modules posted to the <a href="http://forge.puppetlabs.com">Puppet Forge</a>, how to structure your code and classify your nodes with the <a href="http://garylarizza.com/blog/2014/02/17/puppet-workflow-part-2/">Roles and Profiles</a> pattern, and, perhaps most importantly, how to test and promote Puppet code using <a href="http://garylarizza.com/blog/2014/02/18/puppet-workflow-part-3/">Puppet environments and r10k</a>. On the last day you learn to coordinate multi-node deployments using a clever combination of <a href="https://www.youtube.com/watch?v=vOKT35VE_hA">MCollective</a> and <a href="http://forge.puppetlabs.com/dalen/puppetdbquery">dalen/puppetdbquery</a> and it is good. Your <a href="https://cloud.google.com/products/compute-engine/">Google Compute Engine</a> cloud is a crystal palace and when the wind blows through the <a href="http://www.dvice.com/sites/dvice/files/styles/blog_post_media/public/images/Oobject-15-skyscrapers-on-hold-Dubai-Towers.jpg?itok=bjMpiIs_">spires</a> it resonates in the frequency of DevOps. And it is purple.</p>
+
+<p>You take what you have learned back to the office and the next application infrastructure delivery proceeds from greenfield to production-grade with only minor bumps and ahead of schedule and in another fit of bravado you announce to the CTO, &ldquo;We shall now Puppetize All The Things! I shall now have root on the AIX nodes!&rdquo; at which point you are bludgeoned from behind by the head of the Change Control Board. When you awake you are in your cube and duct-taped to your chair. Your keyboad is out of reach. The world is spinning. Just as you lapse back into unconsciousness you hear the head of the CAB say to your CTO,</p>
+
+<p>&ldquo;And how, exactly, are we supposed to know what Puppet is changing on these systems! Does it integrate with our deployment runbook wiki? No!&rdquo;</p>
+
+<p>Your last thought before the world goes dark, &ldquo;I may have overreached. If only Puppet supported a way to <a href="http://docs.puppetlabs.com/pe/latest/console_event-inspector.html">view</a> pending system changes without actually enforcing them(<a href="http://docs.puppetlabs.com/references/latest/metaparameter.html#noop">1</a>,<a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop/">2</a>,<a href="https://nrvale0.github.io/posts/2014/04/puppet-noop-via-resource-defaults-resource-collectors/">3</a>)! And if only I had a way to toggle that functionality from code!&rdquo;</p>
+
+<p>We might even call it &ldquo;Deploy to Noop&rdquo;.</p>
+
+<h2>Deploy to Noop</h2>
+
+<p>That thing you have envisioned&hellip;it&rsquo;s really really easy to implement! Let&rsquo;s start simple and work our way up to something which could be deployed in production.</p>
+
+<p>If you haven&rsquo;t already you should first read up on Puppet&rsquo;s &lsquo;noop mode&rsquo;:</p>
+
+<ul>
+<li><a href="http://docs.puppetlabs.com/references/latest/metaparameter.html#noop">Puppet Metaparameter Reference - noop</a></li>
+<li><a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop/">The Basics of Puppet &ldquo;noop mode&rdquo;</a></li>
+<li><a href="https://nrvale0.github.io/posts/2014/04/puppet-noop-via-resource-defaults-resource-collectors/">Puppet noop via Resource Defaults and Resource Collectors</a></li>
+</ul>
+
+
+<p>Now that you understand Puppet&rsquo;s noop mode, I want to point you to a little-known but super-useful <a href="http://forge.puppetlabs.com">Puppet Forge</a> module: <a href="http://forge.puppetlabs.com/trlinkin/noop">trlinkin/noop</a>. The thrust of it is this:</p>
+
+<blockquote><p>Calling the function &lsquo;noop()&rsquo; bundled with trlinkin/noop puts all resources in the current scope and all child scopes into noop mode.</p></blockquote>
+
+<p>If your site.pp looks like so:</p>
+
+<p>/etc/puppetlabs/puppet/manifests/site.pp:</p>
+
+<pre><code class="puppet">noop()
+node default {
+  notify {'Hello, World! I think you are going to see a noop here ---&gt;':}
+}
+</code></pre>
+
+<p>you should then see the notify resource &lsquo;enforced&rsquo;, not really enforced, in noop:</p>
+
+<pre><code class="console">$ sudo puppet module install trlinkin/noop
+Notice: Preparing to install into /etc/puppetlabs/puppet/modules ...
+Notice: Downloading from https://forge.puppetlabs.com ...
+Notice: Installing -- do not interrupt ...
+/etc/puppetlabs/puppet/modules
+└── trlinkin-noop (v0.0.2)
+
+$ sudo puppet apply /etc/puppetlabs/puppet/manifests/site.pp
+Notice: Compiled catalog for ensenada.nathanvalentine.private in environment production in 0.07 seconds
+Notice: /Stage[main]/Main/Node[default]/Notify[Hello, World! I think you are going to see a noop here ---&gt;]/message: current_value absent, should be Hello, World! I think you are going to see a noop here ---&gt; (noop)
+Notice: Node[default]: Would have triggered 'refresh' from 1 events
+Notice: Class[Main]: Would have triggered 'refresh' from 1 events
+Notice: Stage[main]: Would have triggered 'refresh' from 1 events
+Notice: Finished catalog run in 0.49 seconds
+</code></pre>
+
+<p>So that&rsquo;s pretty interesting! But the noop() call in our site.pp currently sets noop at global scope and therefore turns off enforcement for all resources in all node statements. We have to step back and think about the problem we are trying to solve.</p>
+
+<blockquote><p>Because we are developing a Puppet codebase and we have a brownfield environment, we would really like to default all nodes to noop and then selectively enable enforcement on a sample set of a particular server role. For instance, Noop All The Things except for web servers which are not in production. We iterate over that process and eventually every node in every role in our environment has transitioned from noop-Puppet to Puppet runs enforcing our well-smoketested-on-production-nodes codebase!</p></blockquote>
+
+<p>What if there were a tool that allowed us to set top-scope variable values in Puppet code based on Puppet Facts? Oh!! Hiera!! Let&rsquo;s modify our site.pp like so:</p>
+
+<p>/etc/puppetlabs/puppet/manifests/site.pp:</p>
+
+<pre><code class="puppet"># Force noop mode unless specified otherwise in hiera
+$force_noop = hiera('force_noop')
+unless false == $force_noop {
+    notify { "Puppet noop safety latch is enabled in site.pp": }
+    noop()
+}
+
+# Allow hiera to assign classes
+hiera_include('classes')
+
+node default {
+  notify { "The value of 'force_noop is ${force_noop}": }
+}
+</code></pre>
+
+<p>and then we&rsquo;ll set up Hiera to reference YAML files and inject a layer in our Hiera router for &lsquo;certname&rsquo;:</p>
+
+<p>/etc/puppetlabs/puppet/hiera.yaml:</p>
+
+<pre><code class="YAML">---
+:backends:
+  - yaml
+
+:yaml:
+  :datadir: "/etc/puppetlabs/puppet/data"
+
+:hierarchy:
+  - "clientcert/%{::clientcert}"
+  - common
+</code></pre>
+
+<p>/etc/puppetlabs/puppet/data/common.yaml:</p>
+
+<pre><code class="YAML">---
+force_noop: true
+</code></pre>
+
+<p>and the clientcert YAML for the nodes in our environment:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> <span class="nb">cd</span> /etc/puppetlabs/puppet/data/clientcert
+</span><span class='line'><span class="gp">$</span> tree clientcert
+</span><span class='line'><span class="go">clientcert</span>
+</span><span class='line'><span class="go">├── master.yaml</span>
+</span><span class='line'><span class="go">└── ubuntu1204-0.yaml&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="go">&lt;h2&gt;$ cat clientcert/master.yaml clientcert/ubuntu1204-0.yaml &lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="go">&lt;h2&gt;force_noop: false&lt;/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="go">&lt;p&gt;force_noop: true</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>To break it down, the YAML above states:</p>
+
+<ol>
+<li>our Puppet master, named &lsquo;master&rsquo;, will run in enforcement mode</li>
+<li>our agent node, named &lsquo;ubuntu1204-0.yaml&rsquo;, will run in noop mode</li>
+</ol>
+
+
+<p>Now, if you understand Hiera, you should see our ability to sift-and-sort nodes
+for enforcement or noop is only limited by the routing logic in our Hiera router.
+It&rsquo;s worth noting that the &lsquo;force_noop&rsquo; top-scope variable can also be set from:</p>
+
+<ol>
+<li>Hiera backends other than YAML. Perhaps something like hiera-http?</li>
+<li>an External Node Classifier or the Puppet Enterprise 3.4 Node Classifier Puppet App</li>
+<li>by editing Puppet Enterprise Groups and Nodes in the PE Console.</li>
+</ol>
+
+
+<p>Some of you are probably saying &lsquo;Nifty!&rsquo; and others of you are probably saying, &ldquo;What the hell just happened?!?!&rdquo;. I have good news&hellip;I&rsquo;ve put together a self-contained Vagrant environment which you can use to play with Deploy to Noop until it clicks. You can find the environment here:</p>
+
+<p><a href="http://github.com/nrvale0/deploy-to-noop-part-1">http://github.com/nrvale0/deploy-to-noop-part1</a></p>
+
+<h2>&ldquo;This is flipping cool and I&rsquo;m going to run off and put it into Production immediately!&rdquo;</h2>
+
+<p>Awesome. Glad you like it. I&rsquo;ve used this technique at a number of customer sites and I think it is super-useful. There are a few caveats:</p>
+
+<p>When you are making changes to your Hiera data to turn off the noop safety latch on a node or set of nodes, you&rsquo;d best understand how to either manually query and verify the results from Hiera, or even better, know how to wire up your CI system / deployment orchestration system to test that you aren&rsquo;t accidentally turning off noop in places you don&rsquo;t expect. Here&rsquo;s an example of how to query Hiera from the master command-line assuming the Hiera data and router config shown above:</p>
+
+<pre><code class="console">$ hiera -c /etc/puppetlabs/puppet/hiera.yaml force_noop ::environment=production ::certname=ubuntu1204-0
+false
+</code></pre>
+
+<p>Also, noop agent runs have the potential to generate rather large Report Logs every time the agent runs. &ldquo;These are the things I would like to change but I cannot because I am in noop mode!&rdquo; If your Puppet master is PuppetDB-integrated (default on Puppet Enterprise) this can result in your PuppetDB consuming quite a bit of storage. PuppetDB data has a TTL so as you disable the noop safety for more and more of your nodes the amount of PuppetDB storage required (assuming a constant number nodes and a steady agent run interval) should decrease. I&rsquo;ve had clients who had thousands of nodes in noop mode for months at a time and they have PuppetDB databases in the 100&rsquo;s of GBs range. Be prepared for this when you are laying out the storge for your Puppet master/PuppetDB server.</p>
+
+<p>I&rsquo;d also encourage you to move your nodes into enforcement as rapidly as possibly. What&rsquo;s the point of writing Puppet code if you never allow Puppet to converge the configuration of the nodes?!? This is meant as a temporary hack to allow you to get Puppetizing quickly before you have&hellip;.dum dum dum&hellip;developed a full CI-integrated service delivery/deployment pipline. But that&rsquo;s a topic for another blog! ;)</p>
+
+<h2>Conclusion</h2>
+
+<p>Feel free to email <a href="mailto:nrvale0@gmail.com">me</a> if you have questions. Pull Requests and bug reports are welcome and encouraged!</p>
+
+<p>Happy de-brownfielding!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Puppet Noop via Collector]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/"/>
+    <updated>2014-04-15T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector</id>
+    <content type="html"><![CDATA[<h1>Overview</h1>
+
+<p>In a <a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop">previous article</a> I
+wrote about Puppet&rsquo;s noop mode which allows you to compare a node&rsquo;s current
+config state against the state specified in Puppet code without actually making
+any changes to the node. This is a super useful low-risk way of testing
+your Puppet code on production nodes and ensuring you don&rsquo;t break anything
+while testing. (Of course it is always useful to have
+infrastructure for automated testing but that is another discussion for another
+time.) I also wrote about the three commonly understood ways of invoking noop
+mode:</p>
+
+<ol>
+<li>via the &lsquo;noop = true&rsquo; setting in the &lsquo;[agent]&rsquo; section of puppet.conf</li>
+<li>via &lsquo;puppet agent -t &ndash;noop&rsquo; and &lsquo;puppet apply &ndash;noop &lt;puppet code&gt;&rsquo;</li>
+<li>via &lsquo;noop => true&rsquo; specified as a <a href="http://docs.puppetlabs.com/references/latest/metaparameter.html">metaparameter</a> of a Puppet <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_resources.html">resource</a></li>
+</ol>
+
+
+<p>In the first two examples above our noop mode is all-or-nothing; noop will
+be enforced for every resource Puppet is managing on our node. That provides
+the ultimate in safety but there are scenarios where we&rsquo;d like to enforce
+some resources and not others. The third option above provides the abilty
+to specify noop per-resource in our Puppet DSL code and while that is useful
+we certainly don&rsquo;t want to have to add that code to every resource we are
+testing.</p>
+
+<p>In this article we are going to look at two additional ways to specify noop
+for some subset of Puppet-managed resources:</p>
+
+<ol>
+<li>noop via <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_defaults.html">Resource Defaults</a></li>
+<li>noop via <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collectors</a></li>
+</ol>
+
+
+<h1>noop via Resource Defaults</h1>
+
+<p>For every <a href="http://docs.puppetlabs.com/references/latest/type.html">resource type</a> available in our
+Puppet code, whether that be via the core resource types or those added to our
+codebase via a Puppet <a href="http://forge.puppetlabs.com">module</a>, we can use
+Resource Default syntax to specify default attribute values. Let&rsquo;s look at
+some example code:</p>
+
+<pre><code class="puppet">file { '/tmp/file1':
+  ensure =&gt; file,
+  owner =&gt; 'root',
+  group =&gt; 'root',
+  mode =&gt; '0644',
+  nope =&gt; true,
+}
+
+file { '/tmp/file2':
+  ensure =&gt; file,
+  owner =&gt; 'root',
+  group =&gt; 'root',
+  mode =&gt; '0600',
+  noop =&gt; true,
+}
+</code></pre>
+
+<p>You might think the code above would create the files &lsquo;/tmp/file1&rsquo; and
+&lsquo;/tmp/file2&rsquo; and you would be close to correct. Note the &lsquo;noop => true&rsquo; on
+both file resources. Puppet is going to check whether these files exist with
+the specified attributes for ownership, group, etc and then if there is a
+misalignment between the state of the files on the system and the state
+specified in our code it is going to <em>tell you what it would like to, but
+cannot, change due to the noop metaparameter values</em>. Also, it would seem there
+is probably an opportunity for some code compression; we have specified
+identical values for attributes like &lsquo;owner&rsquo; in both of the file resources. Let&rsquo;s
+see an example of Resource Defaults which knocks out both of those issues:</p>
+
+<pre><code class="puppet">File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644', noop =&gt; true, }
+
+file { '/tmp/file1':
+  ensure =&gt; file,
+}
+
+file { '/tmp/file2':
+  ensure =&gt; file,
+  mode =&gt; '0600',
+  noop =&gt; false,
+}
+</code></pre>
+
+<p>In the code above the &ldquo;File {&hellip;&rdquo; line sets a series of defaults for all
+file resource types in the current
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_scope.html">scope</a>.
+For example, unless otherwise specified/overridden, all files created in the
+current scope will have a mode value of &lsquo;0644&rsquo;. As you can see, the
+&lsquo;/tmp/file2&rsquo; file resource above actually overrides both &lsquo;mode&rsquo; and &lsquo;noop&rsquo;
+values. Assuming I have saved the above code in /tmp/foo.pp, here&rsquo;s the output
+of a &lsquo;puppet apply&rsquo; run:</p>
+
+<pre><code class="console">$ sudo puppet apply /tmp/foo.pp
+Notice: Compiled catalog for testnode.private in environment production in 0.12 seconds
+Notice: /Stage[main]/Main/File[/tmp/file1]/ensure: current_value absent, should be file (noop)
+Notice: Class[Main]: Would have triggered 'refresh' from 1 events
+Notice: Stage[main]: Would have triggered 'refresh' from 1 events
+Notice: Finished catalog run in 0.31 seconds
+$ ls -l /tmp/file* 
+-rw------- 1 root root 0 Apr 15 07:17 /tmp/file2
+</code></pre>
+
+<p>Hopefully no great surprises there. :)</p>
+
+<p>Because the Resource Default syntax is available for all resource types, you
+might also do the following kinds of things:</p>
+
+<pre><code class="puppet">User { managehome =&gt; true, noop =&gt; true, }
+Package { provider =&gt; 'gem', noop =&gt; true, }
+Service { ensure =&gt; 'running', noop =&gt; true, }
+</code></pre>
+
+<p>While there is some value in being able to specify noop for lots of resources
+in one fell swoop, there are a couple of limitations with the above approach:</p>
+
+<ul>
+<li><p>First, the Resource Defaults only apply in the current
+scope and child scopes. Since 90% of the Puppet code you write will live
+in a module with its own class-based
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_namespaces.html">namespace</a>
+and associated scope the impact of your Resource Defaults will be limited.
+That is a good thing and a bad thing. You <em>could</em> go into
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/dirs_manifest.html">site.pp</a>
+and specify Resource Defaults at global scope but then you are tweaking
+defaults for all resources on the node and that introduces the possibility
+for all kinds of odd interactions which you&rsquo;d probably rather avoid. Just as
+you would be careful doing things in global scope in other languages you should
+be careful doing things at global (site.pp) scope in Puppet.</p></li>
+<li><p>Second, if you wanted to enable noop mode for all Types using Resource
+Defaults you&rsquo;d have to explicitly do so for every Type in your Puppet codebase.
+Until the Puppet DSL supports some form of introspection (and maybe not even
+then) it isn&rsquo;t possible to know every Type available in your codebase. Even
+doing so for the core types, of which there are several dozen, would be a
+lot of ugly boilerplate code and it still wouldn&rsquo;t give you coverage for custom
+Types which come bundled with a <a href="http://forge.puppetlabs.com">Forge</a> module.
+you&rsquo;ll have to include a Resource Default statement for every resource type</p></li>
+</ul>
+
+
+<p>So, at best, it probably only makes sense to use Resource Defaults for
+enabling noop mode at the class/module level.</p>
+
+<p>Wouldn&rsquo;t it be nice if we could somehow query the list of managed resources
+from within the Puppet DSL and set noop where appropriate? Read on!</p>
+
+<h1>noop via Resource Collectors</h1>
+
+<p>Up to this point I&rsquo;ve written about &ldquo;resources managed on the node&rdquo; and been
+very careful to not explore that concept at any greater depth. Time for more
+Puppet fundamentals&hellip;</p>
+
+<p>It is a common misconception that during a <a href="http://docs.puppetlabs.com/references/latest/man/agent.html">Puppet agent</a> run the
+agent actually downloads the Puppet code from the Puppet master. Other
+configuration management systems often work that way but the design of Puppet
+is such that instead the Puppet master &lsquo;compiles a catalog&rsquo; which is
+essentially a compressed JSON document which contains all of the details of
+the resources to be managed on the requesting node. That
+<a href="http://docs.puppetlabs.com/puppet/latest/reference/subsystem_catalog_compilation.html">catalog</a>
+is downloaded by the agent and passed to a layer in the Puppet agent called the
+<a href="http://docs.puppetlabs.com/learning/ral.html">Resource Abstraction Layer</a>
+which is responsible for converting the catalog into the desired node config
+state. There are some constructs in the Puppet DSL that allow us, as one of
+the last stages of catalog compilation, to manipulate the resources in the
+catalog.</p>
+
+<p>In this case I&rsquo;m referring to <a href="https://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collectors</a>. Let&rsquo;s take a look at some examples of Resource Collectors.</p>
+
+<p>Here&rsquo;s a simple resource collector to force all Package resources on the system
+to noop mode:</p>
+
+<pre><code class="puppet">Package &lt;| |&gt; {
+  noop =&gt; true,
+}
+</code></pre>
+
+<p>This means all Package resources in the node&rsquo;s catalog will be noop&#8217;ed
+and thus the Puppet agent will <em>report</em> packages it would like to change but
+will not actually make those changes. A note for those who might be a little
+more advanced in their Puppet usage, know that Resource Collector operations are
+<a href="http://docs.puppetlabs.com/learning/ral.html">parse order independent</a>.</p>
+
+<p>There are scenarios where we might want to mark just specific packages for
+noop as opposed to the entire set of packages in the catalog. We can pick out
+a subset of packages using <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_collectors.html">Resource Collector search expressions</a>.</p>
+
+<p>Here&rsquo;s an example of marking the &lsquo;kernel&rsquo; package noop:</p>
+
+<pre><code class="puppet">Package &lt;| title == 'kernel' |&gt; {
+  ensure =&gt; latest,
+  noop =&gt; true,
+}
+</code></pre>
+
+<p>so if the &lsquo;kernel&rsquo; package is in our catalog and a newer version is available
+in our repositories we&rsquo;ll get a entry in the agent run report indicating as
+such but Puppet will not, perhaps thankfully, take it upon itself to install
+the new package.</p>
+
+<p>Here are some additional examples of Resource Collectors using search
+expressions:</p>
+
+<pre><code class="puppet">Package &lt;| title == 'openssl' or title == 'openssh-server' |&gt; {
+  ensure =&gt; latest,
+}
+
+File &lt;| mode == '0777' |&gt; {
+  mode =&gt; '0644',
+}
+
+Service &lt;| title == 'selinux' or title == 'rtools' |&gt; {
+  ensure =&gt; stopped,
+  enable =&gt; false,
+}
+</code></pre>
+
+<p>though some of these are represent questionable practices in actual production.
+;)</p>
+
+<p>Resource Collectors, especially when paired with search expressions, give us
+a lot more flexibility to pick out catalog resources for noop mode but they
+suffer a similar limitation to Resource Defaults in that if we were to try
+to use them to noop all resources in the Catalog we&rsquo;d have to include
+a statement for each Resource Type in our catalog and we can never know the set
+of all available Resource Types in our codebase without some clever
+introspection capabilities not currently present in the DSL.</p>
+
+<h2>An Important Wrinkle with Resource Collectors</h2>
+
+<p>There&rsquo;s a very important, and surprising, wrinkle you should be aware of when
+you consider a Resource Collector; if you were to do something like this:</p>
+
+<pre><code class="puppet">User &lt;| |&gt; {
+  ensure =&gt; present, 
+}
+</code></pre>
+
+<p>that seems rather innocuous. &ldquo;For every user in my catalog ensure that user
+is present.&lsquo; At worst, you might override some code somewhere else that
+specified a particular user should be &#8216;ensure => absent&rsquo;, right? Well, there&rsquo;s
+a corner case involving <a href="http://docs.puppetlabs.com/puppet/latest/reference/lang_virtual.html">Virtual Resources</a>.
+If you collect a Resource Type which has Virtual Resources in the catalog you
+may very well instantiate those resources. Please read up on Virtual Resources
+before using the Collector.</p>
+
+<h1>Let&rsquo;s Review</h1>
+
+<p>We&rsquo;ve covered quite a bit of ground in the last two posts so let&rsquo;s step back
+for a second to get our bearings before we go on to the next article. We&rsquo;ve
+talked about:</p>
+
+<ul>
+<li>the basic concept of the noop mode in Puppet</li>
+<li>basic ways to invoke noop mode acrossed an entire Puppet enforcement run:
+
+<ul>
+<li>puppet agent -t &ndash;noop</li>
+<li>puppet apply &ndash;noop /tmp/foo.pp</li>
+</ul>
+</li>
+<li>a handful of ways to invoke noop mode for individual resources (metaparameter &lsquo;noop => true&rsquo;)</li>
+<li>invoking noop acrossed a limited set of resources:
+
+<ul>
+<li>Resource Defaults</li>
+<li>Resource Collectors</li>
+</ul>
+</li>
+</ul>
+
+
+<p>The end goal of all of this noop cleverness is to allow us to test our Puppet
+code on production nodes and catch any issues which might have snuck through
+earlier testing with non-production nodes. We want the ability to not only
+do coarse-grained/whole-catalog noop testing but also the ability to pick
+and choose which parts of our codebase and managed resources are in full
+enforcement or noop mode.</p>
+
+<p>In the next post we&rsquo;ll tie all of this together and start our investigation
+of the techniques I call &ldquo;deploy to noop&rdquo; which allows us to start picking
+out particular parts of the codebase but parts of our codebase for partciular
+sets of nodes in our production network.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[The Basics of Puppet Noop]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/"/>
+    <updated>2014-04-10T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop</id>
+    <content type="html"><![CDATA[<h1>Overview</h1>
+
+<p>There are a few solutions out there for configuration management and server
+orchestration these days but over the next few articles I&rsquo;m going to talk about
+an oft-overlooked feature unique to
+<a href="http://puppetlabs.com">Puppet</a> called &ldquo;noop mode&rdquo;. If you are old-hand with
+Puppet please be patient. I&rsquo;m going to start with the basics of noop mode and
+build to some advanced deployment techniques I collectively refer to as
+&ldquo;deploy to noop&rdquo; which greatly reduce guesswork and hand-wringing when doing
+brownfield Puppet and Puppet Enterprise deployments in large, multi-platform,
+complicated environments.</p>
+
+<h1>A Quick Intro to Puppet</h1>
+
+<p>For those who might not be familar with Puppet, it is a programming language
+and toolchain for managing the configuration of the nodes in your computing
+infrastructure. Traditionally this has meant UNIX-like operating systems but
+as of the last couple of years that has expanded to include MS Windows systems
+and even network and storage devices. Instead of logging into these nodes
+and hand-configuring nodes we instead choose to manage nodes via the Puppet
+Domain Specific Language(DSL) and a server-client ( master-agent in
+Puppet parlance ) architecture which centralizes and automates the enforcement
+of our nodes&#8217; desired state as specified in our Puppet code. The process of
+taking a node from current config state to our desired state is called
+&ldquo;convergence&rdquo;. In the example below I show some Puppet code which lives in
+my Puppet master&rsquo;s cached copy of my Puppet codebase and which I&rsquo;ve chosen to
+have enforced on my Ubuntu workstation:</p>
+
+<pre><code class="puppet">user { 'testuser':
+  ensure =&gt; present,
+}
+
+package { 'vim-haproxy':
+  ensure =&gt; installed,
+}
+</code></pre>
+
+<p>The above code will converge the state of my node such that at the end of
+a Puppet agent run I should have a user called &lsquo;testuser&rsquo; and the package
+&lsquo;vim-haproxy&rsquo; will be installed. Let&rsquo;s see the output of a manual verbose
+<a href="http://docs.puppetlabs.com/references/latest/man/agent.html">Puppet agent</a> run:</p>
+
+<pre><code class="console">$ sudo puppet agent -t
+Notice: Compiled catalog for testnode.private in environment production in 0.75 seconds
+Notice: /Stage[main]/Main/Package[vim-haproxy]/ensure: ensure changed 'purged' to 'present'
+Notice: /Stage[main]/Main/User[testuser]/ensure: created
+Notice: Finished catalog run in 7.10 seconds
+</code></pre>
+
+<p>We can manually check our new state against our desired state with the usual
+UNIX command-line tools:</p>
+
+<pre><code class="console">$ id testuser
+uid=1004(testuser) gid=1007(testuser) groups=1007(testuser)
+$ dpkg -l vim-haproxy
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name           Version      Architecture Description
++++-==============-============-============-=================================
+ii  vim-haproxy        2:7.4.000-1u amd64        Vi IMproved - enhanced vi editor 
+$ id testuser2
+id: testuser2: no such user
+</code></pre>
+
+<p>or with Puppet toolchain itself with the
+&lsquo;puppet resource&rsquo; command where &lsquo;puppet resource&rsquo; takes a type and the
+title of the resource we&rsquo;d like to verify:</p>
+
+<pre><code class="console">$ puppet resource user testuser
+user { 'testuser':
+  ensure =&gt; 'present',
+  gid    =&gt; '1007',
+  home   =&gt; '/home/testuser',
+  bash  =&gt; '/bin/sh',
+  uid    =&gt; '1004',
+}
+$ puppet resource package vim-haproxy
+package { 'vim-haproxy':
+  ensure =&gt; '1.4.24-1',
+}
+$ puppet resource user testuser2
+user { 'testuser2':
+  ensure =&gt; 'absent',
+}
+</code></pre>
+
+<p>Let&rsquo;s consider the output of the &lsquo;puppet resource&rsquo; verification commands above.
+If you are familar with the Puppet DSL you&rsquo;ll notice that the &lsquo;puppet resource&rsquo;
+command spits out valid Puppet DSL which represents the current config state
+of our node. I threw in an extra query for the user &lsquo;testuser2&rsquo; to demonstrate
+the output of the &lsquo;puppet resource&rsquo; command when we query for a resource which
+is not present on the node. &lsquo;testuser2&rsquo; is not on our node so we&rsquo;d have to
+&lsquo;ensure => absent&rsquo; in Puppet code to get the current config state.</p>
+
+<p>Some readers might be saying, &ldquo;I&rsquo;m already familar with the &lsquo;id&rsquo; and &lsquo;dpkg&rsquo;
+commands on Ubuntu so why bother with the &lsquo;puppet resource&rsquo; queries at all?&rdquo;
+Well, consider that once you become proficient with Puppet you might be writing
+Puppet code to manage users and packages on many different types of systems
+and &lsquo;dpkg&rsquo; and &lsquo;id&rsquo; may not be present on all of those platforms.
+&lsquo;puppet resource&rsquo; should work everywhere you have Puppet installed!</p>
+
+<p>We&rsquo;ve had a quick fly-by of how Puppet works. There&rsquo;s plenty more to learn
+at <a href="http://docs.puppetlabs.com">http://docs.puppetlabs.com</a>. Let&rsquo;s get back
+to our discussion of noop mode.</p>
+
+<h1>What is noop mode?</h1>
+
+<p>In the examples I provided above we converged a node from its present state to
+the desired state as captured in our Puppet codebase. That workflow is fine
+if we have spun up devtest nodes for testing our Puppet code but it&rsquo;s not always
+possible to have a devtest node which perfectly mirrors the config state of a
+node in our production environment. Puppet&rsquo;s noop mode allows us to see the
+changes Puppet would <em>like</em> to make while preventing Puppet from actually
+performing the convergence. Once we start digging into Puppet we are going to
+see there are lots of different places we can enable noop mode and where we
+choose to enable noop mode has an impact on which and how many changes we
+prevent.</p>
+
+<p>In this article we are going to cover only the three most widely known ways
+of enabling noop mode:</p>
+
+<ol>
+<li>in puppet.conf</li>
+<li>as a command-line parameter to the &lsquo;puppet agent&rsquo; and &lsquo;puppet apply&rsquo;
+commands.</li>
+<li>as a resource metaparameter</li>
+</ol>
+
+
+<h2>Enabling noop mode in puppet.conf</h2>
+
+<p>If we want absolute assurance that Puppet will only ever report the changes
+it would like to make without ever actually making those changes we can do so
+via a setting in the node&rsquo;s puppet.conf.</p>
+
+<p>FLOSS Puppet and Puppet Enterprise have the puppet.conf file
+in slightly different locations. The easiest way to find your puppet.conf file
+is with the following command:</p>
+
+<pre><code class="console">$ sudo puppet agent --configprint config
+/etc/puppet/puppet.conf
+</code></pre>
+
+<p>If you wanted to force noop mode for all Puppet agent runs you simply set
+&lsquo;noop = true&rsquo; in the &lsquo;[agent]&rsquo; section of your puppet.conf as shown below:</p>
+
+<pre><code class="console"># puppet.conf
+...
+[agent]
+  noop = true
+</code></pre>
+
+<p>Let&rsquo;s see how that impacts a Puppet agent run after we unwind the changes we
+made in our previous testing:</p>
+
+<pre><code class="console">$ sudo puppet resource user testuser ensure=absent
+Notice: /User[testuser]/ensure: removed
+user { 'testuser':
+  ensure =&gt; 'absent',
+}
+$ sudo puppet resource package vim-haproxy ensure=absent
+Notice: /Package[vim-haproxy]/ensure: removed
+package { 'vim-haproxy':
+  ensure =&gt; 'purged',
+}
+$ sudo puppet agent -t
+Notice: Compiled catalog for testnode.private in environment production in 0.69 seconds
+Notice: /Stage[main]/Main/Package[vim-haproxy]/ensure: current_value purged, should be present (noop)
+Notice: /Stage[main]/Main/User[testuser]/ensure: current_value absent, should be present (noop)
+Notice: Class[Main]: Would have triggered 'refresh' from 2 events
+Notice: Stage[main]: Would have triggered 'refresh' from 1 events
+Notice: Finished catalog run in 0.53 seconds
+</code></pre>
+
+<p>We can see by the &lsquo;(noop)&rsquo; at the end of the lines above that Puppet wanted
+to converge the user and the package but did not due to our noop setting.
+If you run &lsquo;puppet resource&rsquo; for the user and the package now the results of the
+queries would verify that neither testuser nor the vim-haproxy package are
+installed.</p>
+
+<p>Congratulations, you have absolute assurance Puppet is never going to converge
+your node but, um, that&rsquo;s kind of the point of a configuration management
+system so, in the end, perhaps that is not very useful. Go ahead and remove
+the &lsquo;noop = true&rsquo; from your puppet.conf and we&rsquo;ll look at a couple more ways
+you can enable noop mode.</p>
+
+<h2>Enabling noop mode during manual &lsquo;puppet agent&rsquo; or &lsquo;puppet apply&rsquo; runs</h2>
+
+<p>I&rsquo;m not going to get into the difference between the <a href="http://docs.puppetlabs.com/references/latest/man/agent.html">&lsquo;puppet agent&rsquo;</a>
+and <a href="http://docs.puppetlabs.com/references/latest/man/apply.html">&lsquo;puppet apply&rsquo;</a>
+commands in this article but you can click through
+the provided links to dig into the details. For now it is sufficient to say
+they are two ways you can converge your system to a state specified in Puppet
+code. For either command if you instead preferred to see what Puppet would
+like to change without actually making any changes you could do so like so:</p>
+
+<pre><code class="console">$ puppet agent -t --noop
+</code></pre>
+
+<pre><code class="console">$ puppet apply --noop /path/to/puppetcode.pp
+</code></pre>
+
+<p>and you will see output appended with &lsquo;(noop)&rsquo; and could verify the config
+state of your node had not changed with &lsquo;puppet resource&rsquo; queries just as in
+the case where you had specified noop mode in your puppet.conf.</p>
+
+<h2>Enable noop mode as a Resource Metaparameter</h2>
+
+<p>To this point in the article I&rsquo;ve held off on some Puppet DSL jargon which is
+now necessary. First, please take a look at the following Puppet DSL code:</p>
+
+<pre><code class="puppet">user { 'testuser':    
+  ensure =&gt; present,    
+  noop =&gt; true,    
+}    
+
+package { 'vim-haproxy':    
+  ensure =&gt; present,    
+}
+</code></pre>
+
+<p>In the code shown above we have two &lsquo;resources&rsquo;:</p>
+
+<ol>
+<li>a user resource with title &lsquo;testuser&rsquo; with attribute ensure value present.</li>
+<li>a package resource with title &lsquo;vim-haproxy&rsquo; with attribute ensure value
+present.</li>
+</ol>
+
+
+<p>There&rsquo;s something a little special about the user resource though. There&rsquo;s
+an additional attribute &lsquo;noop&rsquo; with a value of &lsquo;true&rsquo;. The &lsquo;noop&rsquo; attribute
+is what&rsquo;s called a
+<a href="http://docs.puppetlabs.com/references/latest/metaparameter.html">metaparameter</a>.
+Let&rsquo;s just say that metaparameters are present for all
+<a href="http://docs.puppetlabs.com/references/latest/type.html">Types</a>
+in the Puppet DSL and leave it at that for now. The important take-away here
+is that for any resource type you are attempting to manage in the DSL you
+can set &lsquo;noop => true&rsquo; and even if you have not enabled noop mode from
+puppet.conf nor from the command-line that particular resource will not be
+converged. Also important to note is that barring a change in the puppet.conf
+or a noop passed at the command-line the package the above code <em>will</em> install
+the vim-haproxy package. The noop metaparameter is a way to enforce noop mode
+with a very fine resolution. In this case for just a single resource.</p>
+
+<h1>Where have we been and where are we going?</h1>
+
+<p>In this article I provided some very basic examples of Puppet code and we
+talked a little bit about config state convergence. We also stepped through
+various ways you can enable Puppet&rsquo;s &ldquo;noop mode&rdquo; to get a convergence dry-run.
+Noop mode is useful in lots of situations but our particular use case
+is for testing config state changes on production systems while ensuring
+we aren&rsquo;t going to make any changes to that production system and
+therefore potentially break production. We saw three places where we
+could easily enable noop mode even as a Puppet beginner.</p>
+
+<p>Upcoming articles will require more advanced understanding of the Puppet DSL
+and the Puppet stack. I will introduce more sophisticated ways of utilizing
+noop mode for testing and verification.</p>
+
+<p>Please stay tuned and thanks for reading.</p>
+]]></content>
+  </entry>
+  
+</feed>

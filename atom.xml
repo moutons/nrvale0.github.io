@@ -1,108 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Differently Ambitious</title>
-  <meta name="author" content="Nathan Valentine">
-
-  
-  <meta name="description" content="I&rsquo;ve had a couple of situations where I wanted to be able to commit
-an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hellip;">
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://nrvale0.github.io">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/feeds/all.atom.xml" rel="alternate" title="Differently Ambitious" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-3666894-5']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
-
-</head>
-
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">Differently Ambitious</a></h1>
-  
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/feeds/all.atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://www.google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:nrvale0.github.io" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/about">About</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div class="blog-index">
-  
-  
-  
-    <article>
-      
-  <header>
+  <title><![CDATA[Differently Ambitious]]></title>
+  <link href="http://nrvale0.github.io/atom.xml" rel="self"/>
+  <link href="http://nrvale0.github.io/"/>
+  <updated>2014-12-11T14:34:07-08:00</updated>
+  <id>http://nrvale0.github.io/</id>
+  <author>
+    <name><![CDATA[Nathan Valentine]]></name>
     
-      <h1 class="entry-title"><a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a></h1>
-    
-    
-      <p class="meta">
-        
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
 
-
-
-
-<time class='entry-date' datetime='2014-10-31T19:00:00-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>7:00 pm</span></time>
-        
-           | <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ve had a couple of situations where I wanted to be able to commit
+  
+  <entry>
+    <title type="html"><![CDATA[.gitignore to Allow 'Empty' Directory]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/"/>
+    <updated>2014-10-31T19:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve had a couple of situations where I wanted to be able to commit
 an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit
 empty directories so the usual way around this is to include a
 .gitinclude file in the &lsquo;empty&rsquo; directory &ndash; thus no longer empty.</p>
@@ -204,38 +120,15 @@ whether those subdirectories have content or not:</p>
 <p>That took way to long to figure out! :\ Here&rsquo;s a repo if you don&rsquo;t believe it worked:</p>
 
 <p><a href="https://github.com/nrvale0/gitinclude_tricks">nrvale0/gitinclude_tricks</a></p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-10-16T01:00:00-07:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
-        
-           | <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>This is not my beautiful house!</h2>
+  <entry>
+    <title type="html"><![CDATA[Turning the Brownfield Green - Aka Puppet and 'Deploy to Noop']]></title>
+    <link href="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/"/>
+    <updated>2014-10-16T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop</id>
+    <content type="html"><![CDATA[<h2>This is not my beautiful house!</h2>
 
 <p>I&rsquo;m going to tell you a story. You are the protagonist in this story and you are in TechOps or perhaps you are a Developer.</p>
 
@@ -473,38 +366,15 @@ It&rsquo;s worth noting that the &lsquo;force_noop&rsquo; top-scope variable can
 <p>Feel free to email <a href="mailto:nrvale0@gmail.com">me</a> if you have questions. Pull Requests and bug reports are welcome and encouraged!</p>
 
 <p>Happy de-brownfielding!</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-05-25T01:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
-        
-           | <a href="/blog/2014/05/25/android-insufficient-storage-fix/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>So lately I&#8221;ve been having intermittent problems when upgrading Android
+  <entry>
+    <title type="html"><![CDATA[Android 'Insufficient Storage' Fix]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/"/>
+    <updated>2014-05-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix</id>
+    <content type="html"><![CDATA[<p>So lately I&#8221;ve been having intermittent problems when upgrading Android
 apps on my HTC One running CyanogenMod; the dreaded &ldquo;Insuffucinent storage&rdquo;
 nonsense. I&rsquo;m not going to pretend I&rsquo;ve spent the time to dig into this
 issue to find the root case but I will tell you which of the numerous
@@ -541,38 +411,15 @@ in the case of the AirBNB app:</p>
 
 <p>Note that this often resets the data for the app such that you may have
 to login to the app again.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-25T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
-        
-           | <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I recently ran into the dreaded <a href="http://www.itworld.com/mobile-wireless/403955/insufficient-storage-available-android-and-how-fix-it-aka-unix-y-man-behind-c">&ldquo;Insufficient storage available&rdquo;</a> problem when trying to reinstall the Google Drive app on my HTC One running <a href="http://www.cyanogenmod.com">Cyanogenmod&rsquo;s</a> spin on KitKat. In the usual <a href="http://www.urbandictionary.com/define.php?term=yak%20shaving">shaving-the-yak</a> fashion the proposed fix for this problem (fixes in previously-linked article did not resolve :() required an upgrade of ADB and the Android SDK. As it turns out KitKit now requires a click-to-accept on your phone when you&rsquo;ve connected to USB debugging with an unrecognized RSA key. This is news to me in a number of ways as I didn&rsquo;t even know there <strong>was</strong> an RSA key built-out as part of ADB debugging but, regardless, my phone was not prompting in any way about any keys. It took about 20 minutes to figure out the following series of steps to get ADB working:</p>
+  <entry>
+    <title type="html"><![CDATA[Android KitKat and the Andriod Debug Bridge RSA Key]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/"/>
+    <updated>2014-04-25T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key</id>
+    <content type="html"><![CDATA[<p>I recently ran into the dreaded <a href="http://www.itworld.com/mobile-wireless/403955/insufficient-storage-available-android-and-how-fix-it-aka-unix-y-man-behind-c">&ldquo;Insufficient storage available&rdquo;</a> problem when trying to reinstall the Google Drive app on my HTC One running <a href="http://www.cyanogenmod.com">Cyanogenmod&rsquo;s</a> spin on KitKat. In the usual <a href="http://www.urbandictionary.com/define.php?term=yak%20shaving">shaving-the-yak</a> fashion the proposed fix for this problem (fixes in previously-linked article did not resolve :() required an upgrade of ADB and the Android SDK. As it turns out KitKit now requires a click-to-accept on your phone when you&rsquo;ve connected to USB debugging with an unrecognized RSA key. This is news to me in a number of ways as I didn&rsquo;t even know there <strong>was</strong> an RSA key built-out as part of ADB debugging but, regardless, my phone was not prompting in any way about any keys. It took about 20 minutes to figure out the following series of steps to get ADB working:</p>
 
 <ol>
 <li>Settings/Developer Options/Revoke USB debugging authorization</li>
@@ -582,38 +429,15 @@ to login to the app again.</p>
 
 
 <p>Now, where were we&hellip;.oh, yes, Google Drive&hellip;</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-24T15:04:46-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:04 pm</span></time>
-        
-           | <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;m a <a href="http://www.techopedia.com/definition/28547/cord-cutting">cord cutter</a>
+  <entry>
+    <title type="html"><![CDATA['Direct Play W/ Fallback' Solves All Your Roku+Plex+YouTube Problems]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/"/>
+    <updated>2014-04-24T15:04:46-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m a <a href="http://www.techopedia.com/definition/28547/cord-cutting">cord cutter</a>
 and have relied heavily on a combination of <a href="http://roku.com">Roku</a>,
 <a href="http://plex.tv">Plex</a>, and the Plex <a href="http://youtube.com">YouTube</a> channel
 for both entertainment and work-related content for the past couple of
@@ -634,38 +458,15 @@ select &lsquo;Preferences&rsquo;.</li>
 similar problems when streaming local media hosted on a Plex Media Server.</p>
 
 <p>Hope that helps.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/15/puppet-noop-via-collector/">Puppet Noop via Collector</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-15T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
-        
-           | <a href="/blog/2014/04/15/puppet-noop-via-collector/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>Overview</h1>
+  <entry>
+    <title type="html"><![CDATA[Puppet Noop via Collector]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/"/>
+    <updated>2014-04-15T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector</id>
+    <content type="html"><![CDATA[<h1>Overview</h1>
 
 <p>In a <a href="https://nrvale0.github.io/posts/2014/04/the-basics-of-puppet-noop">previous article</a> I
 wrote about Puppet&rsquo;s noop mode which allows you to compare a node&rsquo;s current
@@ -1015,38 +816,15 @@ enforcement or noop mode.</p>
 of the techniques I call &ldquo;deploy to noop&rdquo; which allows us to start picking
 out particular parts of the codebase but parts of our codebase for partciular
 sets of nodes in our production network.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/10/the-basics-of-puppet-noop/">The Basics of Puppet Noop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-10T01:00:00-07:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
-        
-           | <a href="/blog/2014/04/10/the-basics-of-puppet-noop/#disqus_thread"
-             data-disqus-identifier="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>Overview</h1>
+  <entry>
+    <title type="html"><![CDATA[The Basics of Puppet Noop]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/"/>
+    <updated>2014-04-10T01:00:00-07:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop</id>
+    <content type="html"><![CDATA[<h1>Overview</h1>
 
 <p>There are a few solutions out there for configuration management and server
 orchestration these days but over the next few articles I&rsquo;m going to talk about
@@ -1392,97 +1170,7 @@ and the Puppet stack. I will introduce more sophisticated ways of utilizing
 noop mode for testing and verification.</p>
 
 <p>Please stay tuned and thanks for reading.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a>
-      </li>
-    
-  </ul>
-</section>
-
-
-
-
-
-  
-</aside>
-
-    </div>
-  </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Nathan Valentine -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
-
-</footer>
-  
-
-<script type="text/javascript">
-      var disqus_shortname = 'differentlyambitious';
-      
-        
-        var disqus_script = 'count.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
-
-
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
-</body>
-</html>
+</feed>

@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android &#8216;Insufficient Storage&#8217; Fix - Differently Ambitious</title>
+  <meta name="author" content="Nathan Valentine">
+
+  
+  <meta name="description" content="So lately I"ve been having intermittent problems when upgrading Android
+apps on my HTC One running CyanogenMod; the dreaded &ldquo;Insuffucinent &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/feeds/all.atom.xml" rel="alternate" title="Differently Ambitious" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-3666894-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Differently Ambitious</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/feeds/all.atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:nrvale0.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android &#8216;Insufficient Storage&#8217; Fix</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-25T01:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nrvale0.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So lately I&#8221;ve been having intermittent problems when upgrading Android
+apps on my HTC One running CyanogenMod; the dreaded &ldquo;Insuffucinent storage&rdquo;
+nonsense. I&rsquo;m not going to pretend I&rsquo;ve spent the time to dig into this
+issue to find the root case but I will tell you which of the numerous
+suggested work-arounds have been successful in my case. For instance,
+in the case of the AirBNB app:</p>
+
+<p>(of course the usual #include &lt;disclaimer.h&gt; applies)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> adb shell
+</span><span class='line'><span class="go">shell@m7:/ $ su -</span>
+</span><span class='line'><span class="go">root@m7:/ # cd /data/app-lib</span>
+</span><span class='line'><span class="go">root@m7:/data/app-lib # find ./ -type f -ipath &#39;*airbnb* -iname &#39;*.so&#39; -exec rm -f {} \;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then make another pass at upgrading the app from Google Play.</p>
+
+<p>If the update still fails then you can go Big Hammer with the following command:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> adb shell
+</span><span class='line'><span class="go">shell@m7:/ $ su -</span>
+</span><span class='line'><span class="go">root@m7:/ # cd /data/app-lib</span>
+</span><span class='line'><span class="go">root@m7:/data/app-lib # find ./ -name &#39;*airbnb*&#39; -exec rm -rf {} \;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that this often resets the data for the app such that you may have
+to login to the app again.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Nathan Valentine</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-05-25T01:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:00 am</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/adb/'>adb</a>, <a class='category' href='/blog/categories/android/'>android</a>, <a class='category' href='/blog/categories/cyanogenmod/'>cyanogenmod</a>, <a class='category' href='/blog/categories/htc-one/'>htc-one</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/" title="Previous Post: Android KitKat and the Andriod Debug Bridge RSA Key">&laquo; Android KitKat and the Andriod Debug Bridge RSA Key</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/" title="Next Post: Turning the Brownfield Green - aka Puppet and 'Deploy to Noop'">Turning the Brownfield Green - aka Puppet and &#8216;Deploy to Noop&#8217; &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to Allow &#8216;Empty&#8217; Directory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/">Turning the Brownfield Green - Aka Puppet and &#8216;Deploy to Noop&#8217;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/25/android-insufficient-storage-fix/">Android &#8216;Insufficient Storage&#8217; Fix</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play W/ Fallback&#8217; Solves All Your Roku+Plex+YouTube Problems</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Nathan Valentine -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'differentlyambitious';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/';
+        var disqus_url = 'http://nrvale0.github.io/blog/2014/05/25/android-insufficient-storage-fix/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
