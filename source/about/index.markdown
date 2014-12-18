@@ -5,6 +5,8 @@ author: Nathan Valentine
 sharing: true
 footer: true
 ---
+<img id="portrait" src="https://en.gravatar.com/userimage/4489375/46b44e665f62ad28d61839e7c63c9fc8.jpg?size=200" alt="portrait" />
+
 # [Nathan Valentine](http://about.me/nrvale0)
 * <mailto:nrvale0@gmail.com>
 * [nrvale0 @ Twitter](http://twitter.com/nrvale0)
