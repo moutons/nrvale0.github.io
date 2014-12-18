@@ -16,7 +16,7 @@ description:
 date_format: "ordinal"
 
 # RSS / Email (optional) subscription links (change if using something like Feedburner)
-subscribe_rss: /feeds/all.atom.xml
+subscribe_rss:
 subscribe_email:
 # RSS feeds can list your email address if you like
 email:
@@ -51,7 +51,7 @@ titlecase: true       # Converts page and post titles to titlecase
 
 # list each of the sidebar modules you want to include, in the order you want them to appear.
 # To add custom asides, create files in /source/_includes/custom/asides/ and add them to the list like 'custom/asides/custom_aside_name.html'
-default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+default_asides: [asides/recent_posts.html, asides/tag_cloud.html, asides/github.html]
 
 # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
 # and add an array with the asides you want to use.
@@ -64,8 +64,8 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
-github_repo_count: 0
+github_user: nrvale0
+github_repo_count: 10
 github_show_profile_link: true
 github_skip_forks: true
 
@@ -99,6 +99,3 @@ google_analytics_tracking_id: UA-3666894-5
 
 # Facebook Like
 facebook_like: false
-
-# Clicky Analytics
-clicky_site_key: 100786007
