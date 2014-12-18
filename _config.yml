@@ -99,3 +99,6 @@ google_analytics_tracking_id: UA-3666894-5
 
 # Facebook Like
 facebook_like: false
+
+# Clicky Analytics
+clicky_site_key: 100786007
