@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Noop | Differently Ambitious]]></title>
+  <title><![CDATA[Category: noop | Differently Ambitious]]></title>
   <link href="http://nrvale0.github.io/blog/categories/noop/atom.xml" rel="self"/>
   <link href="http://nrvale0.github.io/"/>
-  <updated>2014-12-17T19:26:38-08:00</updated>
+  <updated>2014-12-18T00:14:43-08:00</updated>
   <id>http://nrvale0.github.io/</id>
   <author>
     <name><![CDATA[Nathan Valentine]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Turning the Brownfield Green - Aka Puppet and 'Deploy to Noop']]></title>
+    <title type="html"><![CDATA[Turning the Brownfield Green - aka Puppet and 'Deploy to Noop']]></title>
     <link href="http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/"/>
     <updated>2014-10-16T01:00:00-07:00</updated>
     <id>http://nrvale0.github.io/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop</id>
@@ -209,7 +209,7 @@ false
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Puppet Noop via Collector]]></title>
+    <title type="html"><![CDATA[puppet noop via collector]]></title>
     <link href="http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector/"/>
     <updated>2014-04-15T01:00:00-07:00</updated>
     <id>http://nrvale0.github.io/blog/2014/04/15/puppet-noop-via-collector</id>
@@ -500,7 +500,7 @@ sets of nodes in our production network.</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[The Basics of Puppet Noop]]></title>
+    <title type="html"><![CDATA[the basics of puppet noop]]></title>
     <link href="http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop/"/>
     <updated>2014-04-10T01:00:00-07:00</updated>
     <id>http://nrvale0.github.io/blog/2014/04/10/the-basics-of-puppet-noop</id>
