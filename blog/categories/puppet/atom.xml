@@ -4,7 +4,7 @@
   <title><![CDATA[Category: puppet | Differently Ambitious]]></title>
   <link href="http://nrvale0.github.io/blog/categories/puppet/atom.xml" rel="self"/>
   <link href="http://nrvale0.github.io/"/>
-  <updated>2014-12-27T12:56:17-08:00</updated>
+  <updated>2014-12-27T20:33:00-08:00</updated>
   <id>http://nrvale0.github.io/</id>
   <author>
     <name><![CDATA[Nathan Valentine]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Small Addition to Deploy to Noop]]></title>
+    <link href="http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/"/>
+    <updated>2014-12-27T20:06:41-08:00</updated>
+    <id>http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop</id>
+    <content type="html"><![CDATA[<p>Just a quick update to my <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop">previous post about the &lsquo;Deploy to Noop&rsquo; technique for Puppet</a>.</p>
+
+<p>In the <a href="https://github.com/nrvale0/deploy-to-noop-part-1/blob/a001e9a6c0994048141a3bc5e0349e090796e7d8/puppet/environments/production/manifests/site.pp">original version of the code in the our demo environment</a> we had something like this in our manifests/site.pp:</p>
+
+<pre><code class="puppet">filebucket { 'main':
+  server =&gt; $::servername,
+  path   =&gt; false,
+}
+
+File { backup =&gt; 'main' }
+
+$force_noop = hiera('force_noop')
+unless false == $force_noop {
+  notify { "Puppet noop safety latch is enabled in site.pp!": }
+  noop()
+}
+
+hiera_include('classes')
+</code></pre>
+
+<p>As a reminder, the key bit is the callout to hiera to resolve the value of the &lsquo;force_noop&rsquo; variable. If it resolves to anything other than the boolean value of False we will enable the noop safety latch via the if statement. As you probably recall, the noop() function will force all resources in the current scope and all children scopes into noop or tell-me-what-you-would-do-but-don&rsquo;t-actually-do-it mode. Resolving the state of the noop safety latch from Hiera allows us to selectively disable/enable the noop safety depending on whatever layers we have defined in our Hiera router: ex: datacenter, cloud, osfamily, etc.</p>
+
+<p>Some folks asked how we could not only allow twiddling of noop safety from the Puppet Enterprise Console but do so in a way such that the Console was authoritative even over what was embedded in our Hiera data. A common reason for asking for this functionality was to allow a non-Puppet expert to very easily halt convergence runs across an environment when Puppet code had been promoted and later determined to have some problem. Yes, you could just promote fixed code up through your automated deploymnet pipeline (Oh, you don&rsquo;t have one of those? ;)) but this is very quick and very easily. So here&rsquo;s the entire manifests/site.pp with the code to allow such a thing:</p>
+
+<pre><code class="puppet">filebucket { 'main':
+  server =&gt; $::servername,
+  path   =&gt; false,
+}
+
+File { backup =&gt; 'main' }
+
+$force_noop_real = str2bool( pick( $::force_noop, hiera('force_noop', 'true') ) )
+if $force_noop_real {
+  notify { "Puppet noop safety latch is enabled in site.pp!": }
+  noop()
+}
+
+hiera_include('classes')
+</code></pre>
+
+<p>Line 8 above has most of the interesting action. It&rsquo;s kind of a jumble but the end result is pretty straight-forward. Let&rsquo;s start at the inside and work our way out.</p>
+
+<ol>
+<li>First, check Hiera for the value of &lsquo;force_noop&rsquo;. If no value for &lsquo;force_noop&rsquo; is resolved from Hiera data we will default the value to the 2nd parameter of the function call: in this case Boolean &lsquo;true&rsquo;.</li>
+<li>Next, use the puppetlabs/stdlib function pick() to check the value of the top-scope variable &lsquo;force_noop&rsquo;. If the value has already been set then pick() will return that value. Otherwise it will return the value we generated in step #1.</li>
+<li>Lastly, whatever the value of the previous two expressions, we cast the results to a boolean value. That is simple because it allows us to replace the &lsquo;unless&rsquo; conditional in Line 9 with a more vanilla, and probably more easiliy understood, if statement.</li>
+</ol>
+
+
+<p>At the end of the day, the only substantive change we&rsquo;ve made to allow the noop safety latch to be twiddled from the Puppet Enterprise Console is the pick() function call. The rest is just housekeeping.</p>
+
+<p>Happy Puppeting!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Turning the Brownfield Green - aka Puppet and 'Deploy to Noop']]></title>

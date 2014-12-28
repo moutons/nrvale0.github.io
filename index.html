@@ -9,8 +9,7 @@
   <meta name="author" content="Nathan Valentine">
 
   
-  <meta name="description" content="I&rsquo;ve had a couple of situations where I wanted to be able to commit
-an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hellip;">
+  <meta name="description" content="Just a quick update to my previous post about the &lsquo;Deploy to Noop&rsquo; technique for Puppet. In the original version of the code in the our &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -47,8 +46,10 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
 </head>
 
 <body   >
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <nav role="navigation"><ul class="subscription" data-subscription="rss email">
   <li><a href="http://feeds.feedburner.com/DifferentlyAmbitious" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+    <li><a href="nrvale0@gmail.com" rel="subscribe-email" title="subscribe via email">Email</a></li>
   
 </ul>
   
@@ -76,6 +77,125 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/27/a-small-addition-to-deploy-to-noop/">A Small Addition to Deploy to Noop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-27T20:06:41-08:00" pubdate data-updated="true"></time>
+        
+         | <a href="/blog/2014/12/27/a-small-addition-to-deploy-to-noop/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Just a quick update to my <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop">previous post about the &lsquo;Deploy to Noop&rsquo; technique for Puppet</a>.</p>
+
+<p>In the <a href="https://github.com/nrvale0/deploy-to-noop-part-1/blob/a001e9a6c0994048141a3bc5e0349e090796e7d8/puppet/environments/production/manifests/site.pp">original version of the code in the our demo environment</a> we had something like this in our manifests/site.pp:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">filebucket</span> <span class="p">{</span> <span class="s">&#39;main&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">server</span> <span class="o">=&gt;</span> <span class="nv">$::servername,</span>
+</span><span class='line'>  <span class="na">path</span>   <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">File</span> <span class="p">{</span> <span class="na">backup</span> <span class="o">=&gt;</span> <span class="s">&#39;main&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$force_noop</span> <span class="o">=</span> <span class="na">hiera</span><span class="p">(</span><span class="s">&#39;force_noop&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="na">unless</span> <span class="k">false</span> <span class="o">==</span> <span class="nv">$force_noop</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;Puppet noop safety latch is enabled in site.pp!&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">hiera_include</span><span class="p">(</span><span class="s">&#39;classes&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As a reminder, the key bit is the callout to hiera to resolve the value of the &lsquo;force_noop&rsquo; variable. If it resolves to anything other than the boolean value of False we will enable the noop safety latch via the if statement. As you probably recall, the noop() function will force all resources in the current scope and all children scopes into noop or tell-me-what-you-would-do-but-don&rsquo;t-actually-do-it mode. Resolving the state of the noop safety latch from Hiera allows us to selectively disable/enable the noop safety depending on whatever layers we have defined in our Hiera router: ex: datacenter, cloud, osfamily, etc.</p>
+
+<p>Some folks asked how we could not only allow twiddling of noop safety from the Puppet Enterprise Console but do so in a way such that the Console was authoritative even over what was embedded in our Hiera data. A common reason for asking for this functionality was to allow a non-Puppet expert to very easily halt convergence runs across an environment when Puppet code had been promoted and later determined to have some problem. Yes, you could just promote fixed code up through your automated deploymnet pipeline (Oh, you don&rsquo;t have one of those? ;)) but this is very quick and very easily. So here&rsquo;s the entire manifests/site.pp with the code to allow such a thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">filebucket</span> <span class="p">{</span> <span class="s">&#39;main&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">server</span> <span class="o">=&gt;</span> <span class="nv">$::servername,</span>
+</span><span class='line'>  <span class="na">path</span>   <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">File</span> <span class="p">{</span> <span class="na">backup</span> <span class="o">=&gt;</span> <span class="s">&#39;main&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$force_noop_real</span> <span class="o">=</span> <span class="na">str2bool</span><span class="p">(</span> <span class="na">pick</span><span class="p">(</span> <span class="nv">$::force_noop,</span> <span class="na">hiera</span><span class="p">(</span><span class="s">&#39;force_noop&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</span><span class='line'><span class="k">if</span> <span class="nv">$force_noop_real</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;Puppet noop safety latch is enabled in site.pp!&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">hiera_include</span><span class="p">(</span><span class="s">&#39;classes&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Line 8 above has most of the interesting action. It&rsquo;s kind of a jumble but the end result is pretty straight-forward. Let&rsquo;s start at the inside and work our way out.</p>
+
+<ol>
+<li>First, check Hiera for the value of &lsquo;force_noop&rsquo;. If no value for &lsquo;force_noop&rsquo; is resolved from Hiera data we will default the value to the 2nd parameter of the function call: in this case Boolean &lsquo;true&rsquo;.</li>
+<li>Next, use the puppetlabs/stdlib function pick() to check the value of the top-scope variable &lsquo;force_noop&rsquo;. If the value has already been set then pick() will return that value. Otherwise it will return the value we generated in step #1.</li>
+<li>Lastly, whatever the value of the previous two expressions, we cast the results to a boolean value. That is simple because it allows us to replace the &lsquo;unless&rsquo; conditional in Line 9 with a more vanilla, and probably more easiliy understood, if statement.</li>
+</ol>
+
+
+<p>At the end of the day, the only substantive change we&rsquo;ve made to allow the noop safety latch to be twiddled from the Puppet Enterprise Console is the pick() function call. The rest is just housekeeping.</p>
+
+<p>Happy Puppeting!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1453,6 +1573,10 @@ noop mode for testing and verification.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/27/a-small-addition-to-deploy-to-noop/">A Small Addition to Deploy to Noop</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">.gitignore to allow &#8216;empty&#8217; directory</a>
       </li>
     
@@ -1468,15 +1592,11 @@ noop mode for testing and verification.</p>
         <a href="/blog/2014/04/25/android-kitkat-and-the-andriod-debug-bridge-rsa-key/">Android KitKat and the Andriod Debug Bridge RSA Key</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2014/04/24/direct-play-w-slash-fallback-solves-all-your-roku-plus-plex-plus-youtube-problems/">&#8216;Direct Play w/ Fallback&#8217; solves all your Roku+Plex+YouTube problems</a>
-      </li>
-    
   </ul>
 </section>
 <section>
   <h1>Tags</h1>
-    <span id="tag-cloud"><a href='/blog/categories/adb' style='font-size: 140.0%'>adb</a> <a href='/blog/categories/andriod' style='font-size: 120.0%'>andriod</a> <a href='/blog/categories/android' style='font-size: 120.0%'>android</a> <a href='/blog/categories/cordcutter' style='font-size: 120.0%'>cordcutter</a> <a href='/blog/categories/cyanogenmod' style='font-size: 140.0%'>cyanogenmod</a> <a href='/blog/categories/devops' style='font-size: 160.0%'>devops</a> <a href='/blog/categories/git' style='font-size: 120.0%'>git</a> <a href='/blog/categories/htc-one' style='font-size: 140.0%'>htc-one</a> <a href='/blog/categories/noop' style='font-size: 160.0%'>noop</a> <a href='/blog/categories/plex' style='font-size: 120.0%'>plex</a> <a href='/blog/categories/puppet' style='font-size: 160.0%'>puppet</a> <a href='/blog/categories/roku' style='font-size: 120.0%'>roku</a> <a href='/blog/categories/rsa' style='font-size: 120.0%'>rsa</a> <a href='/blog/categories/youtube' style='font-size: 120.0%'>youtube</a> </span>
+    <span id="tag-cloud"><a href='/blog/categories/adb' style='font-size: 130.0%'>adb</a> <a href='/blog/categories/andriod' style='font-size: 115.0%'>andriod</a> <a href='/blog/categories/android' style='font-size: 115.0%'>android</a> <a href='/blog/categories/cordcutter' style='font-size: 115.0%'>cordcutter</a> <a href='/blog/categories/cyanogenmod' style='font-size: 130.0%'>cyanogenmod</a> <a href='/blog/categories/devops' style='font-size: 145.0%'>devops</a> <a href='/blog/categories/git' style='font-size: 115.0%'>git</a> <a href='/blog/categories/htc-one' style='font-size: 130.0%'>htc-one</a> <a href='/blog/categories/noop' style='font-size: 160.0%'>noop</a> <a href='/blog/categories/plex' style='font-size: 115.0%'>plex</a> <a href='/blog/categories/puppet' style='font-size: 160.0%'>puppet</a> <a href='/blog/categories/roku' style='font-size: 115.0%'>roku</a> <a href='/blog/categories/rsa' style='font-size: 115.0%'>rsa</a> <a href='/blog/categories/youtube' style='font-size: 115.0%'>youtube</a> </span>
 </section>
 
 <section>

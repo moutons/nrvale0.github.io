@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>.gitignore to allow &#8216;empty&#8217; directory - Differently Ambitious</title>
+  <title>A Small Addition to Deploy to Noop - Differently Ambitious</title>
   <meta name="author" content="Nathan Valentine">
 
   
-  <meta name="description" content="I&rsquo;ve had a couple of situations where I wanted to be able to commit
-an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hellip;">
+  <meta name="description" content="Just a quick update to my previous post about the &lsquo;Deploy to Noop&rsquo; technique for Puppet. In the original version of the code in the our &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/">
+  <link rel="canonical" href="http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -81,7 +80,7 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
   
   <header>
     
-      <h1 class="entry-title">.gitignore to Allow &#8216;Empty&#8217; Directory</h1>
+      <h1 class="entry-title">A Small Addition to Deploy to Noop</h1>
     
     
       <p class="meta">
@@ -97,7 +96,7 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
   
 
 
-<time datetime="2014-10-31T19:00:00-07:00" pubdate data-updated="true"></time>
+<time datetime="2014-12-27T20:06:41-08:00" pubdate data-updated="true"></time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -106,71 +105,9 @@ an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit &hel
   </header>
 
 
-<div class="entry-content"><p>I&rsquo;ve had a couple of situations where I wanted to be able to commit
-an empty directory to a git repo. Git doesn&rsquo;t allow you to add+commit
-empty directories so the usual way around this is to include a
-.gitinclude file in the &lsquo;empty&rsquo; directory &ndash; thus no longer empty.</p>
+<div class="entry-content"><p>Just a quick update to my <a href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop">previous post about the &lsquo;Deploy to Noop&rsquo; technique for Puppet</a>.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> mkdir /tmp/foo <span class="o">&amp;&amp;</span> <span class="nb">cd</span> /tmp/foo
-</span><span class='line'><span class="gp">$</span> git init
-</span><span class='line'><span class="go">Initialized empty Git repository in /tmp/foo/.git/</span>
-</span><span class='line'><span class="gp">$</span> mkdir bar
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span><span class='line'><span class="gp">$</span> touch bar/.gitinclude
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span><span class='line'><span class="go">add &#39;bar/.gitinclude&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Okay, that seems better.</p>
-
-<p>But in my case I would like &lsquo;bar&rsquo; but not any subdirectories. Let&rsquo;s
-see how that shakes out:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> mkdir bar/baz
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span><span class='line'><span class="go">add &#39;bar/.gitinclude&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That looks about right &ndash; BUT IT ISN&rsquo;T! Git isn&rsquo;t including &lsquo;baz&rsquo; because
-baz is a directory with no content.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> touch bar/baz/somefile
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span><span class='line'><span class="go">add &#39;bar/.gitinclude&#39;</span>
-</span><span class='line'><span class="go">add &#39;bar/baz/somefile&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Well, crap. Hows about I just add a .gitignore into &lsquo;bar&rsquo;:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> <span class="nb">echo</span> <span class="s1">&#39;*&#39;</span> &gt; bar/.gitignore
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Uh, now we don&rsquo;t get anything on an &lsquo;add&rsquo;?!?</p>
-
-<p>Here&rsquo;s the right way to get an &lsquo;empty&rsquo; &lsquo;bar&rsquo; with no subdirectories
-whether those subdirectories have content or not:</p>
+<p>In the <a href="https://github.com/nrvale0/deploy-to-noop-part-1/blob/a001e9a6c0994048141a3bc5e0349e090796e7d8/puppet/environments/production/manifests/site.pp">original version of the code in the our demo environment</a> we had something like this in our manifests/site.pp:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -186,28 +123,70 @@ whether those subdirectories have content or not:</p>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> rm bar/.gitinclude
-</span><span class='line'><span class="gp">$</span> <span class="o">(</span>cat &lt;&lt;HERE
-</span><span class='line'><span class="go">*/</span>
-</span><span class='line'><span class="go">!.gitignore</span>
-</span><span class='line'><span class="go">HERE</span>
-</span><span class='line'><span class="gp">&gt;</span> <span class="o">)</span> &gt; bar/.gitignore
-</span><span class='line'><span class="gp">$</span> git add -A -n
-</span><span class='line'><span class="gp">$</span> add <span class="s1">&#39;bar/.gitignore&#39;</span>
-</span><span class='line'><span class="gp">$</span> tree
-</span><span class='line'><span class="go">.</span>
-</span><span class='line'><span class="go">└── bar</span>
-</span><span class='line'><span class="go">    └── baz</span>
-</span><span class='line'><span class="go">        └── somefile</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">filebucket</span> <span class="p">{</span> <span class="s">&#39;main&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">server</span> <span class="o">=&gt;</span> <span class="nv">$::servername,</span>
+</span><span class='line'>  <span class="na">path</span>   <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="go">2 directories, 1 file</span>
+</span><span class='line'><span class="k">File</span> <span class="p">{</span> <span class="na">backup</span> <span class="o">=&gt;</span> <span class="s">&#39;main&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$force_noop</span> <span class="o">=</span> <span class="na">hiera</span><span class="p">(</span><span class="s">&#39;force_noop&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="na">unless</span> <span class="k">false</span> <span class="o">==</span> <span class="nv">$force_noop</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;Puppet noop safety latch is enabled in site.pp!&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">hiera_include</span><span class="p">(</span><span class="s">&#39;classes&#39;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That took way to long to figure out! :\ Here&rsquo;s a repo if you don&rsquo;t believe it worked:</p>
+<p>As a reminder, the key bit is the callout to hiera to resolve the value of the &lsquo;force_noop&rsquo; variable. If it resolves to anything other than the boolean value of False we will enable the noop safety latch via the if statement. As you probably recall, the noop() function will force all resources in the current scope and all children scopes into noop or tell-me-what-you-would-do-but-don&rsquo;t-actually-do-it mode. Resolving the state of the noop safety latch from Hiera allows us to selectively disable/enable the noop safety depending on whatever layers we have defined in our Hiera router: ex: datacenter, cloud, osfamily, etc.</p>
 
-<p><a href="https://github.com/nrvale0/gitinclude_tricks">nrvale0/gitinclude_tricks</a></p>
+<p>Some folks asked how we could not only allow twiddling of noop safety from the Puppet Enterprise Console but do so in a way such that the Console was authoritative even over what was embedded in our Hiera data. A common reason for asking for this functionality was to allow a non-Puppet expert to very easily halt convergence runs across an environment when Puppet code had been promoted and later determined to have some problem. Yes, you could just promote fixed code up through your automated deploymnet pipeline (Oh, you don&rsquo;t have one of those? ;)) but this is very quick and very easily. So here&rsquo;s the entire manifests/site.pp with the code to allow such a thing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='puppet'><span class='line'><span class="k">filebucket</span> <span class="p">{</span> <span class="s">&#39;main&#39;</span><span class="p">:</span>
+</span><span class='line'>  <span class="na">server</span> <span class="o">=&gt;</span> <span class="nv">$::servername,</span>
+</span><span class='line'>  <span class="na">path</span>   <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">File</span> <span class="p">{</span> <span class="na">backup</span> <span class="o">=&gt;</span> <span class="s">&#39;main&#39;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$force_noop_real</span> <span class="o">=</span> <span class="na">str2bool</span><span class="p">(</span> <span class="na">pick</span><span class="p">(</span> <span class="nv">$::force_noop,</span> <span class="na">hiera</span><span class="p">(</span><span class="s">&#39;force_noop&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+</span><span class='line'><span class="k">if</span> <span class="nv">$force_noop_real</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">notify</span> <span class="p">{</span> <span class="s">&quot;Puppet noop safety latch is enabled in site.pp!&quot;</span><span class="p">:</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">noop</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">hiera_include</span><span class="p">(</span><span class="s">&#39;classes&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Line 8 above has most of the interesting action. It&rsquo;s kind of a jumble but the end result is pretty straight-forward. Let&rsquo;s start at the inside and work our way out.</p>
+
+<ol>
+<li>First, check Hiera for the value of &lsquo;force_noop&rsquo;. If no value for &lsquo;force_noop&rsquo; is resolved from Hiera data we will default the value to the 2nd parameter of the function call: in this case Boolean &lsquo;true&rsquo;.</li>
+<li>Next, use the puppetlabs/stdlib function pick() to check the value of the top-scope variable &lsquo;force_noop&rsquo;. If the value has already been set then pick() will return that value. Otherwise it will return the value we generated in step #1.</li>
+<li>Lastly, whatever the value of the previous two expressions, we cast the results to a boolean value. That is simple because it allows us to replace the &lsquo;unless&rsquo; conditional in Line 9 with a more vanilla, and probably more easiliy understood, if statement.</li>
+</ol>
+
+
+<p>At the end of the day, the only substantive change we&rsquo;ve made to allow the noop safety latch to be twiddled from the Puppet Enterprise Console is the pick() function call. The rest is just housekeeping.</p>
+
+<p>Happy Puppeting!</p>
 </div>
 
 
@@ -230,12 +209,12 @@ whether those subdirectories have content or not:</p>
   
 
 
-<time datetime="2014-10-31T19:00:00-07:00" pubdate data-updated="true"></time>
+<time datetime="2014-12-27T20:06:41-08:00" pubdate data-updated="true"></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/git/'>git</a>
+    <a class='category' href='/blog/categories/noop/'>noop</a>, <a class='category' href='/blog/categories/puppet/'>puppet</a>
   
 </span>
 
@@ -244,7 +223,7 @@ whether those subdirectories have content or not:</p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/" data-via="nrvale0" data-counturl="http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/" >Tweet</a>
   
   
   
@@ -253,10 +232,8 @@ whether those subdirectories have content or not:</p>
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/10/16/turning-the-brownfield-green-aka-puppet-and-deploy-to-noop/" title="Previous Post: Turning the Brownfield Green - aka Puppet and 'Deploy to Noop'">&laquo; Turning the Brownfield Green - aka Puppet and &#8216;Deploy to Noop&#8217;</a>
+        <a class="basic-alignment left" href="/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/" title="Previous Post: .gitignore to allow 'empty' directory">&laquo; .gitignore to allow &#8216;empty&#8217; directory</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/12/27/a-small-addition-to-deploy-to-noop/" title="Next Post: A Small Addition to Deploy to Noop">A Small Addition to Deploy to Noop &raquo;</a>
       
     </p>
   </footer>
@@ -359,8 +336,8 @@ whether those subdirectories have content or not:</p>
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/';
-        var disqus_url = 'http://nrvale0.github.io/blog/2014/10/31/dot-gitignore-to-allow-empty-directory/';
+        var disqus_identifier = 'http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/';
+        var disqus_url = 'http://nrvale0.github.io/blog/2014/12/27/a-small-addition-to-deploy-to-noop/';
         var disqus_script = 'embed.js';
       
     (function () {
