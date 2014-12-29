@@ -3,7 +3,7 @@ layout: post
 title: "'Direct Play w/ Fallback' solves all your Roku+Plex+YouTube problems"
 date: 2014-04-24 14:04:46 -0800
 comments: true
-author: Nathan Valentine
+author: nrvale0
 categories: [roku, plex, youtube, cordcutter]
 ---
 I'm a [cord cutter](http://www.techopedia.com/definition/28547/cord-cutting)

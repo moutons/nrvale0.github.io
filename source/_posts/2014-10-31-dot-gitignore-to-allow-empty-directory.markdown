@@ -2,7 +2,7 @@
 layout: post
 title: .gitignore to allow 'empty' directory
 date: 2014-10-31 18:00:00 -0800
-author: Nathan Valentine
+author: nrvale0
 comments: true
 categories: [git]
 ---

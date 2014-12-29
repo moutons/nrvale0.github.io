@@ -2,6 +2,7 @@
 layout: post
 title: "A Small Addition to Deploy to Noop"
 date: 2014-12-27 20:06:41 -0800
+author: nrvale0
 comments: true
 categories: [ 'puppet', 'noop']
 ---

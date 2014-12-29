@@ -3,7 +3,7 @@ layout: post
 title: "Turning the Brownfield Green - aka Puppet and 'Deploy to Noop'"
 date: 2014-10-16 00:00:00 -0800
 comments: true
-author: Nathan Valentine
+author: nrvale0
 categories: [puppet, noop, devops]
 ---
 ## This is not my beautiful house!

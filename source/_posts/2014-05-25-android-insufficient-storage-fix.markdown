@@ -2,7 +2,7 @@
 layout: post
 title: "Android 'Insufficient storage' fix"
 date: 2014-05-25 00:00:00 -0800
-author: Nathan Valentine
+author: nrvale0
 comments: true
 categories: [android, adb, cyanogenmod, htc-one]
 ---

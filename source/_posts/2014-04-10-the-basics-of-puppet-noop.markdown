@@ -3,7 +3,7 @@ layout: post
 title: "the basics of puppet noop"
 date: 2014-04-10 00:00:00 -0800
 comments: true
-author: Nathan Valentine
+author: nrvale0
 categories: [puppet, noop, devops]
 ---
 # Overview
